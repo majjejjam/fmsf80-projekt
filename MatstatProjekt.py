@@ -32,7 +32,7 @@ def linReg(Pb, Län):
     a, b = res_lin.params
     plt.scatter(T, Y)
     plt.axline((0, a), slope=b)
-    plt.xlabel("Year")
+    plt.xlabel("År")
     plt.ylabel("Pb")
     plt.title(Län)
     plt.show()
@@ -60,7 +60,7 @@ def expReg(Pb, Län):
 
     plt.scatter(T, np.exp(Y))
     plt.plot(t, y)
-    plt.xlabel("Year")
+    plt.xlabel("År")
     plt.ylabel("Pb")
     plt.title(Län)
     plt.show()
@@ -94,7 +94,7 @@ def multReg(Pb):
     plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
     plt.plot(t, y_exp_S, c='blue')
     plt.plot(t, y_exp_B, c='red')
-    plt.xlabel("Year")
+    plt.xlabel("År")
     plt.ylabel("Pb")
     plt.show()
 
