@@ -7,7 +7,7 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-Pb = pd.read_csv("./Pb.csv", encoding='utf-8')
+Pb = pd.read_csv("Pb.csv", encoding='utf-8')
 Pb.Lan = Pb.Lan.astype('category')
 Pb['Year1975'] = Pb.Year - 1975
 
@@ -52,11 +52,12 @@ print(a+b*50)
 
 #Multipel Regression osv nånting.....
 
+Y_log=np.log(Pb['Pb'].values)
 Platser = Pb['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
 T=Pb['Year1975'].values
 X=list(zip(T,P))
-Y=Pb['Pb'].values
+
 
 x_reg=sm.add_constant(X)
 res_mult=sm.OLS(Y,x_reg).fit()
