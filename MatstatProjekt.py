@@ -29,8 +29,8 @@ print(res_lin.summary())
 a,b=res_lin.params
 plt.scatter(T,Y)
 plt.axline((0,a),slope=b)
-plt.xlabel("Pb")
-plt.ylabel("Year")
+plt.xlabel("Year")
+plt.ylabel("Pb")
 plt.show()
 
 #Enkel regression differential model
@@ -45,6 +45,8 @@ plt.scatter(T,Y)
 t_line=np.linspace(0,40,200)
 y_exp=C*np.exp(k*t_line)
 plt.plot(t_line,y_exp)
+plt.xlabel("Year")
+plt.ylabel("Pb")
 plt.show()
 
 print(C*np.exp(k*50))
