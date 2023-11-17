@@ -18,7 +18,7 @@ Pb_B=Pb.loc[Pb['Lan']=='Blekinge län']
 #print(Pb_S)
 #print(Pb_B)
 
-#Enkel regression, Linjär modell 
+#Enkel regression, Linjär modell
 T=Pb_S['Year1975'].values
 Y=Pb_S['Pb'].values
 
@@ -29,6 +29,8 @@ print(res_lin.summary())
 a,b=res_lin.params
 plt.scatter(T,Y)
 plt.axline((0,a),slope=b)
+plt.xlabel("Pb")
+plt.ylabel("Year")
 plt.show()
 
 #Enkel regression differential model
@@ -61,4 +63,3 @@ res_mult=sm.OLS(Y,x_reg).fit()
 print(res_mult.summary())
 #plt.scatter(T,Y)
 #plt.show()
-
