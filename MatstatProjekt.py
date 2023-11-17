@@ -7,7 +7,7 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-Pb = pd.read_csv("Documents/Python/MatStat Projekt/Pb.csv", encoding='utf-8')
+Pb = pd.read_csv("./Pb.csv", encoding='utf-8')
 Pb.Lan = Pb.Lan.astype('category')
 Pb['Year1975'] = Pb.Year - 1975
 
