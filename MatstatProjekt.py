@@ -6,15 +6,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-ws
+
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
 Pb.Lan = Pb.Lan.astype('category')
 Pb['Year1975'] = Pb.Year - 1975
 
 # print( Pb.describe() )
-#Github test 
-print("Vincent succe")
-
 
 Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
