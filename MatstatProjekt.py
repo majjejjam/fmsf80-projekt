@@ -83,8 +83,7 @@ def multReg(Pb):
     x_reg = sm.add_constant(X)
     res_mult_log = sm.OLS(Y_log, x_reg).fit()
     print(res_mult_log.summary())
-    C, k1, k2 = np.exp(
-        res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+    C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 
     t = np.linspace(0, 40, 200)
     y_exp_S = C*np.exp(t*k1)*np.exp(k2)
@@ -97,8 +96,24 @@ def multReg(Pb):
     plt.xlabel("Tid (år)")
     plt.ylabel("Bly (mg/kg mossa)")
     plt.show()
-
+    return C,k1,k2
 
 # Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
 Pb_ny = Pb[Pb['Year1975'] != 20]
 multReg(Pb_ny)
+
+#Prediktion utan intervall för 2025
+C,k1,k2=multReg(Pb)
+pred_B=C*np.exp(50*k1)
+pred_S=C*np.exp(50*k1)*np.exp(k2)
+print('Prediktion blyhalt 2025')
+print('Blekinge: '+str(pred_B))
+print('Södermanland: '+str(pred_S))
+
+#Prediktion utan intervall för när det understiger 10 mg bly/g mossa
+pred_B=np.log(10/C)/k1
+pred_S=np.log(10/(C*np.exp(k2)))/k1
+
+print('Prediktion år blyhalt under 10mg')
+print('Blekinge: '+str(pred_B+1975))
+print('Södermanland: '+str(pred_S+1975))
