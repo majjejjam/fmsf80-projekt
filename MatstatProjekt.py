@@ -166,16 +166,26 @@ def data_intervall(pb):
     df['Södermanland - Övre'] = y_exp_S_övre
     df['Blekinge - Övre'] = y_exp_B_övre
    
-    plt.scatter(Pb_S['Year1975'].values, Pb_S['Pb'].values, c='blue')
-    plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
-    plt.plot(t, y_exp_S, c='blue')
-    plt.plot(t, y_exp_B, c='red')
-    plt.plot(t, y_exp_S_undre, c='lightblue')
-    plt.plot(t, y_exp_B_undre, c='lightcoral')
-    plt.plot(t, y_exp_S_övre, c='darkblue')
-    plt.plot(t, y_exp_B_övre, c='darkred')
-    plt.xlabel("Tid (år)")
-    plt.ylabel("Bly (mg/kg mossa)")
+    sns.set(style="whitegrid")
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 10))
+
+    sns.lineplot(x=t, y=y_exp_S, color='blue', label='Södermanland', ax=axes[0])
+    sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue', label='Södermanland undre', ax=axes[0])
+    sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue', label='Södermanland övre', ax=axes[0])
+    axes[0].set_xlabel("Tid (år)")
+    axes[0].set_ylabel("Bly (mg/kg mossa)")
+    axes[0].legend()
+    axes[0].set_title("Södermanland")
+
+    sns.lineplot(x=t, y=y_exp_B, color='red', label='Blekinge', ax=axes[1])
+    sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral', label='Blekinge undre', ax=axes[1])
+    sns.lineplot(x=t, y=y_exp_B_övre, color='darkred', label='Blekinge övre', ax=axes[1])
+    axes[1].set_xlabel("Tid (år)")
+    axes[1].set_ylabel("Bly (mg/kg mossa)")
+    axes[1].legend()
+    axes[1].set_title("Blekinge")
+
+    plt.tight_layout()
     plt.show()
 
     pred_B_undre = np.log(10/C)/(k1 - 2*k1_se)
@@ -184,9 +194,9 @@ def data_intervall(pb):
     pred_S_övre = np.log(10/(C*np.exp(k2 + 2*k2_se)))/(k1 + 2*k1_se)
 
     print('Prediktion år blyhalt under 10mg')
-    print('Blekinge tidigast: '+str(pred_B_undre+1975))
-    print('Södermanland tidigast: '+str(pred_S_undre+1975))
-    print('Blekinge senast: '+str(pred_B_övre+1975))
-    print('Södermanland senast: '+str(pred_S_övre+1975))
+    print('Blekinge tidigast: '+str(int(pred_B_undre)+1975))
+    print('Södermanland tidigast: '+str(int(pred_S_undre)+1975))
+    print('Blekinge senast: '+str(int(pred_B_övre)+1975))
+    print('Södermanland senast: '+str(int(pred_S_övre)+1975))
     
     return df 
