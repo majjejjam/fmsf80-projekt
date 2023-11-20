@@ -237,7 +237,7 @@ with open('LatexTabeller/prediktioner_2025.tex', 'w') as f:
 
 
 ## Multipel regression exponentiell men där vi flyttar bak alla år efter 1995 med 20 år (chernobyl)
-Pb[Pb['Year1975'] != 20]
+#Pb[Pb['Year1975'] != 20]
 Pb_ny = Pb.copy() 
 Pb_ny.loc[Pb_ny['Year1975'] >= 20, 'Year1975'] -= 20
 Pb_S_ny = Pb_ny.loc[Pb['Lan'] == 'Södermanlands län']
