@@ -35,8 +35,8 @@ plt.show()
 
 
 # Enkel regression differential model Södermanland
-Y = np.log(Y)
-res_exp = sm.OLS(Y, t_reg).fit()
+Y_log = np.log(Y)
+res_exp = sm.OLS(Y_log, t_reg).fit()
 print(res_exp.summary())
 
 C, k = np.exp(res_exp.params[0]), res_exp.params[1]
@@ -44,7 +44,7 @@ epsilon_exp=np.exp(res_exp.resid)
 t = np.linspace(0, 40, 200)
 y = C*np.exp(k*t)
 
-plt.scatter(T, np.exp(Y))
+plt.scatter(T, np.exp(Y_log))
 plt.plot(t, y)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
@@ -60,12 +60,7 @@ sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.show()
 
-
-# Multipel Regression
-
-Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
-Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
-
+# Multipel Regression Exponentiell
 Y_log = np.log(Pb['Pb'].values)
 Platser = Pb['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
@@ -75,8 +70,7 @@ X = list(zip(T, P))
 x_reg = sm.add_constant(X)
 res_mult_log = sm.OLS(Y_log, x_reg).fit()
 print(res_mult_log.summary())
-C, k1, k2 = np.exp(
-    res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 
 t = np.linspace(0, 40, 200)
 y_exp_S = C*np.exp(t*k1)*np.exp(k2)
@@ -103,52 +97,52 @@ Pb_ny = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
 
 # Prediktion med intervall
 
-Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
-Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
+#C, k1, k2 = np.exp(
+#    res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+#C_se, k1_se, k2_se = np.exp(
+#    res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2]
+#t = np.linspace(0, 100, 200)
 
-Y_log = np.log(Pb['Pb'].values)
-Platser = Pb['Lan'].values
-P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
-T = Pb['Year1975'].values
-X = list(zip(T, P))
+intervals=res_mult_log.conf_int()
+C_h,k1_h,k2_h=np.exp(intervals[0][1]),intervals[1][1],intervals[2][1]
+C_l,k1_l,k2_l=np.exp(intervals[0][0]),intervals[1][0],intervals[2][0]
 
-x_reg = sm.add_constant(X)
-res_mult_log = sm.OLS(Y_log, x_reg).fit()
-print(res_mult_log.summary())
-C, k1, k2 = np.exp(
-    res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
-C_se, k1_se, k2_se = np.exp(
-    res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2]
-t = np.linspace(0, 100, 200)
-y_exp_S = C*np.exp(t*k1)*np.exp(k2)
-y_exp_B = C*np.exp(t*k1)
+def exp(C,k1,k2,t):
+    return C*np.exp(t*k1)*np.exp(k2)
 
-df = pd.DataFrame(index=t)
-df['Södermanland'] = y_exp_S
-df['Blekinge'] = y_exp_B
+y_exp_S_undre=exp(C_l,k1_l,k2_l,t)
+y_exp_S = exp(C,k1,k2,t)
+y_exp_S_övre=exp(C_h,k1_h,k2_h,t)
 
-df['Beta S'] = k1
-df['Beta B'] = k2
-df['Beta S - stdev'] = k1_se
-df['Beta B - stdev'] = k2_se
-df['Beta S - undre'] = k1 - 2*k1_se
-df['Beta B - undre'] = k2 - 2*k2_se
-df['Beta S - övre'] = k1 + 2*k1_se
-df['Beta B - övre'] = k2 + 2*k2_se
+y_exp_B_undre=exp(C_l,k1_l,0,t)
+y_exp_B = exp(C,k1,0,t)
+y_exp_B_övre=exp(C_h,k1_h,0,t)
 
-y_exp_S_undre = C*np.exp(t*df['Beta S - undre']) * \
-    np.exp(df['Beta B - undre'])
-y_exp_B_undre = C*np.exp(t*df['Beta S - undre'])
-y_exp_S_övre = C*np.exp(t*df['Beta S - övre'])*np.exp(df['Beta B - övre'])
-y_exp_B_övre = C*np.exp(t*df['Beta S - övre'])
+#df = pd.DataFrame(index=t)
+#df['Södermanland'] = y_exp_S
+#df['Blekinge'] = y_exp_B
 
-df['Södermanland - Undre'] = y_exp_S_undre
-df['Blekinge - Undre'] = y_exp_B_undre
-df['Södermanland - Övre'] = y_exp_S_övre
-df['Blekinge - Övre'] = y_exp_B_övre
+#df['Beta S'] = k1
+#df['Beta B'] = k2
+#df['Beta S - stdev'] = k1_se
+#df['Beta B - stdev'] = k2_se
+#df['Beta S - undre'] = k1 - 2*k1_se
+#df['Beta B - undre'] = k2 - 2*k2_se
+#df['Beta S - övre'] = k1 + 2*k1_se
+#df['Beta B - övre'] = k2 + 2*k2_se
+
+#y_exp_S_undre = C*np.exp(t*df['Beta S - undre']) * \np.exp(df['Beta B - undre'])
+#y_exp_B_undre = C*np.exp(t*df['Beta S - undre'])
+#y_exp_S_övre = C*np.exp(t*df['Beta S - övre'])*np.exp(df['Beta B - övre'])
+#y_exp_B_övre = C*np.exp(t*df['Beta S - övre'])
+
+#df['Södermanland - Undre'] = y_exp_S_undre
+#df['Blekinge - Undre'] = y_exp_B_undre
+#df['Södermanland - Övre'] = y_exp_S_övre
+#df['Blekinge - Övre'] = y_exp_B_övre
 
 sns.set(style="whitegrid")
-fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 10))
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
 
 sns.lineplot(x=t, y=y_exp_S, color='blue',
                 label='Södermanland', ax=axes[0])
@@ -173,16 +167,30 @@ axes[1].set_title("Blekinge")
 
 plt.tight_layout()
 plt.show()
+#Prediktion värde 2025
 
-pred_B_undre = np.log(10/C)/(k1 - 2*k1_se)
-pred_S_undre = np.log(10/(C*np.exp(k2 - 2*k2_se)))/(k1 - 2*k1_se)
-pred_B_övre = np.log(10/C)/(k1 + 2*k1_se)
-pred_S_övre = np.log(10/(C*np.exp(k2 + 2*k2_se)))/(k1 + 2*k1_se)
+pred_exp_S_undre=exp(C_l,k1_l,k2_l,50)
+pred_exp_S = exp(C,k1,k2,50)
+pred_exp_S_övre=exp(C_h,k1_h,k2_h,50)
 
-print('Prediktion år blyhalt under 10mg')
-print('Blekinge tidigast: '+str(int(pred_B_undre)+1975))
-print('Södermanland tidigast: '+str(int(pred_S_undre)+1975))
-print('Blekinge senast: '+str(int(pred_B_övre)+1975))
-print('Södermanland senast: '+str(int(pred_S_övre)+1975))
+pred_exp_B_undre=exp(C_l,k1_l,0,50)
+pred_exp_B = exp(C,k1,0,50)
+pred_exp_B_övre=exp(C_h,k1_h,0,50)
+print('PREDIKTION 2025[Övre, medel,Undre]')
+print('Blekinge: '+str(pred_exp_B_övre)+', '+str(pred_exp_B)+', '+str(pred_exp_B_undre))
+print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred_exp_S_undre))
+
+#pred_B_undre = np.log(10/C)/(k1 - 2*k1_se)
+#pred_S_undre = np.log(10/(C*np.exp(k2 - 2*k2_se)))/(k1 - 2*k1_se)
+#pred_B_övre = np.log(10/C)/(k1 + 2*k1_se)
+#pred_S_övre = np.log(10/(C*np.exp(k2 + 2*k2_se)))/(k1 + 2*k1_se)
+
+#print('Prediktion år blyhalt under 10mg')
+#print('Blekinge tidigast: '+str(int(pred_B_undre)+1975))
+#print('Södermanland tidigast: '+str(int(pred_S_undre)+1975))
+#print('Blekinge senast: '+str(int(pred_B_övre)+1975))
+#print('Södermanland senast: '+str(int(pred_S_övre)+1975))
+
+#Prediktion när under 10mg/g mossa 
 
 
