@@ -26,11 +26,13 @@ print(res_lin.summary())
 a, b = res_lin.params
 epsilon_lin=res_lin.resid
 
-plt.scatter(T, Y)
+#plt.scatter(T, Y)
+sns.scatterplot(x=T, y = Y)
 plt.axline((0, a), slope=b)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland linjär')
+plt.savefig('Grafer/SödermanlandLinjär.png')
 plt.show()
 
 
@@ -44,11 +46,13 @@ epsilon_exp=np.exp(res_exp.resid)
 t = np.linspace(0, 40, 200)
 y = C*np.exp(k*t)
 
-plt.scatter(T, np.exp(Y_log))
+#plt.scatter(T, np.exp(Y_log))
+sns.scatterplot(x= T, y =np.exp(Y_log))
 plt.plot(t, y)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland exponentiell')
+plt.savefig('Grafer/SödermanlandExponentiell.png')
 plt.show()
 
 #Jämförelse mellan lin och exp
@@ -58,6 +62,7 @@ axs[1].set_title('Exponentiell')
 
 sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
+plt.savefig('Grafer/Histogram.png')
 plt.show()
 
 # Multipel Regression Exponentiell
@@ -76,12 +81,18 @@ t = np.linspace(0, 40, 200)
 y_exp_S = C*np.exp(t*k1)*np.exp(k2)
 y_exp_B = C*np.exp(t*k1)
 
-plt.scatter(Pb_S['Year1975'].values, Pb_S['Pb'].values, c='blue')
-plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
-plt.plot(t, y_exp_S, c='blue')
-plt.plot(t, y_exp_B, c='red')
+#plt.scatter(Pb_S['Year1975'].values, Pb_S['Pb'].values, c='blue')
+#plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
+
+sns.scatterplot(x=Pb_S['Year1975'].values, y=Pb_S['Pb'].values, c='blue', label = "Södermanland - Exponentiell modell")
+sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label = "Blekinge - Exponentiell modell")
+plt.plot(t, y_exp_S, c='blue', label = "Södermanland - Mätvärden")
+plt.plot(t, y_exp_B, c='red', label = "Blekinge - Mätvärden")
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
+plt.legend()
+plt.title("Exponentiella modeller")
+plt.savefig('Grafer/ExpModeller.png')
 plt.show()
 
 
@@ -193,7 +204,7 @@ print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred
 
 #Prediktion när under 10mg/g mossa 
 
-#
+#Latex-tabeller för våra regressionsresultat
 latex_table_lin = res_lin.summary().as_latex()
 latex_table_exp = res_exp.summary().as_latex()
 latex_table_mult_log = res_mult_log.summary().as_latex()
