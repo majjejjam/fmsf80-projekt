@@ -193,4 +193,17 @@ print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred
 
 #Prediktion när under 10mg/g mossa 
 
+#
+latex_table_lin = res_lin.summary().as_latex()
+latex_table_exp = res_exp.summary().as_latex()
+latex_table_mult_log = res_mult_log.summary().as_latex()
+
+with open('regression_table_lin.tex', 'w') as f:
+    f.write(latex_table_lin)
+
+with open('regression_table_exp.tex', 'w') as f:
+    f.write(latex_table_exp)
+
+with open('regression_table_mult_log.tex', 'w') as f:
+    f.write(latex_table_mult_log)
 
