@@ -20,7 +20,7 @@ Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
 
 # Enkel regression, Linjär modell
-def lin_reg(Pb, Län):
+def lin_reg(Län):
     Pb_Lan = Pb.loc[Pb['Lan'] == Län]
     T = Pb_Lan['Year1975'].values
     Y = Pb_Lan['Pb'].values
@@ -38,8 +38,8 @@ def lin_reg(Pb, Län):
     plt.show()
 
 
-lin_reg(Pb, 'Blekinge län')
-lin_reg(Pb, 'Södermanlands län')
+lin_reg('Blekinge län')
+lin_reg('Södermanlands län')
 
 # Enkel regression differential model
 
