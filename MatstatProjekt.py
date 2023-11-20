@@ -7,27 +7,38 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+#Vår data av blyhalter
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
 Pb.Lan = Pb.Lan.astype('category')
+
+#Vi skapar en kolumn med gått tid från 1975
 Pb['Year1975'] = Pb.Year - 1975
 
 # print( Pb.describe() )
 
+#Vi delar upp datan per län
 Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
 T = Pb_S['Year1975'].values
 t_reg = sm.add_constant(T)
+
 # Enkel regression, Linjär modell Södermanland
 Y = Pb_S['Pb'].values
 res_lin = sm.OLS(Y, t_reg).fit()
 print(res_lin.summary())
 
+#Våra parametrar för den linjära modellen
 a, b = res_lin.params
+
+#Vår linjära modells residualer
 epsilon_lin=res_lin.resid
 
+#Vi visar våra resulat från den linjära modellen 
 #plt.scatter(T, Y)
 sns.scatterplot(x=T, y = Y)
+
+#Vår linjära ekvation med våra estimerade parametrar
 plt.axline((0, a), slope=b)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
@@ -35,17 +46,22 @@ plt.title('Södermanland linjär')
 plt.savefig('Grafer/SödermanlandLinjär.png')
 plt.show()
 
-
 # Enkel regression differential model Södermanland
 Y_log = np.log(Y)
 res_exp = sm.OLS(Y_log, t_reg).fit()
 print(res_exp.summary())
 
+#Våra parametrar för den exponentiella modellen
 C, k = np.exp(res_exp.params[0]), res_exp.params[1]
+
+#Vår linjära modells residualer
 epsilon_exp=np.exp(res_exp.resid)
 t = np.linspace(0, 40, 200)
+
+#Estimerade värden från vår exponentiella modell
 y = C*np.exp(k*t)
 
+#Vi plottar jämförelsen mellan våra mätvärden och estimerade värden från den exponentiella modellen
 #plt.scatter(T, np.exp(Y_log))
 sns.scatterplot(x= T, y =np.exp(Y_log))
 plt.plot(t, y)
@@ -55,23 +71,30 @@ plt.title('Södermanland exponentiell')
 plt.savefig('Grafer/SödermanlandExponentiell.png')
 plt.show()
 
-#Jämförelse mellan lin och exp
+#Jämförelse mellan linjär och exponentiell modell 
 fig,axs=plt.subplots(nrows=1,ncols=2)
 axs[0].set_title('Linjär')
 axs[1].set_title('Exponentiell')
 
+#Histogram över residualer från våra respektive modeller
 sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
 plt.show()
 
-## Multipel Regression Exponentiell
+## Multipel Regression Exponentiell 
+#Vi logaritmerar våra blyhalter
 Y_log = np.log(Pb['Pb'].values)
+
+#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a 
 Platser = Pb['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
+
+#Vi kombinerar dessa med våra tidsvärden som tid från år 1975
 T = Pb['Year1975'].values
 X = list(zip(T, P))
 
+#Regression på våra logaritmerade blyhalter som en funktion av tid och län 
 x_reg = sm.add_constant(X)
 res_mult_log = sm.OLS(Y_log, x_reg).fit()
 print(res_mult_log.summary())
