@@ -83,7 +83,8 @@ def mult_reg(Pb):
     x_reg = sm.add_constant(X)
     res_mult_log = sm.OLS(Y_log, x_reg).fit()
     print(res_mult_log.summary())
-    C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+    C, k1, k2 = np.exp(
+        res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 
     t = np.linspace(0, 40, 200)
     y_exp_S = C*np.exp(t*k1)*np.exp(k2)
@@ -96,34 +97,35 @@ def mult_reg(Pb):
     plt.xlabel("Tid (år)")
     plt.ylabel("Bly (mg/kg mossa)")
     plt.show()
-    return C,k1,k2
+    return C, k1, k2
+
 
 # Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
 Pb_ny = Pb[Pb['Year1975'] != 20]
 mult_reg(Pb_ny)
 
 # Multipel regression exponentiell men där vi tar bort år 20 och 25 (chernobyl)
-Pb_ny = Pb[(Pb['Year1975'] != 20)&(Pb['Year1975'] != 25)]
+Pb_ny = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
 mult_reg(Pb_ny)
 
-#Prediktion utan intervall för 2025
-C,k1,k2=mult_reg(Pb)
-pred_B=C*np.exp(50*k1)
-pred_S=C*np.exp(50*k1)*np.exp(k2)
+# Prediktion utan intervall för 2025
+C, k1, k2 = mult_reg(Pb)
+pred_B = C*np.exp(50*k1)
+pred_S = C*np.exp(50*k1)*np.exp(k2)
 print('Prediktion blyhalt 2025')
 print('Blekinge: '+str(pred_B))
 print('Södermanland: '+str(pred_S))
 
-#Prediktion utan intervall för när det understiger 10 mg bly/g mossa
-pred_B=np.log(10/C)/k1
-pred_S=np.log(10/(C*np.exp(k2)))/k1
+# Prediktion utan intervall för när det understiger 10 mg bly/g mossa
+pred_B = np.log(10/C)/k1
+pred_S = np.log(10/(C*np.exp(k2)))/k1
 
 print('Prediktion år blyhalt under 10mg')
 print('Blekinge: '+str(pred_B+1975))
 print('Södermanland: '+str(pred_S+1975))
 
 
-#Prediktion med intervall
+# Prediktion med intervall
 def data_intervall(pb):
     Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
     Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
@@ -137,13 +139,15 @@ def data_intervall(pb):
     x_reg = sm.add_constant(X)
     res_mult_log = sm.OLS(Y_log, x_reg).fit()
     print(res_mult_log.summary())
-    C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
-    C_se, k1_se, k2_se = np.exp(res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2]
+    C, k1, k2 = np.exp(
+        res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+    C_se, k1_se, k2_se = np.exp(
+        res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2]
     t = np.linspace(0, 100, 200)
     y_exp_S = C*np.exp(t*k1)*np.exp(k2)
     y_exp_B = C*np.exp(t*k1)
 
-    df = pd.DataFrame(index = t)
+    df = pd.DataFrame(index=t)
     df['Södermanland'] = y_exp_S
     df['Blekinge'] = y_exp_B
 
@@ -156,7 +160,8 @@ def data_intervall(pb):
     df['Beta S - övre'] = k1 + 2*k1_se
     df['Beta B - övre'] = k2 + 2*k2_se
 
-    y_exp_S_undre = C*np.exp(t*df['Beta S - undre'])*np.exp(df['Beta B - undre'])
+    y_exp_S_undre = C*np.exp(t*df['Beta S - undre']) * \
+        np.exp(df['Beta B - undre'])
     y_exp_B_undre = C*np.exp(t*df['Beta S - undre'])
     y_exp_S_övre = C*np.exp(t*df['Beta S - övre'])*np.exp(df['Beta B - övre'])
     y_exp_B_övre = C*np.exp(t*df['Beta S - övre'])
@@ -169,17 +174,22 @@ def data_intervall(pb):
     sns.set(style="whitegrid")
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 10))
 
-    sns.lineplot(x=t, y=y_exp_S, color='blue', label='Södermanland', ax=axes[0])
-    sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue', label='Södermanland undre', ax=axes[0])
-    sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue', label='Södermanland övre', ax=axes[0])
+    sns.lineplot(x=t, y=y_exp_S, color='blue',
+                 label='Södermanland', ax=axes[0])
+    sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue',
+                 label='Södermanland undre', ax=axes[0])
+    sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue',
+                 label='Södermanland övre', ax=axes[0])
     axes[0].set_xlabel("Tid (år)")
     axes[0].set_ylabel("Bly (mg/kg mossa)")
     axes[0].legend()
     axes[0].set_title("Södermanland")
 
     sns.lineplot(x=t, y=y_exp_B, color='red', label='Blekinge', ax=axes[1])
-    sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral', label='Blekinge undre', ax=axes[1])
-    sns.lineplot(x=t, y=y_exp_B_övre, color='darkred', label='Blekinge övre', ax=axes[1])
+    sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral',
+                 label='Blekinge undre', ax=axes[1])
+    sns.lineplot(x=t, y=y_exp_B_övre, color='darkred',
+                 label='Blekinge övre', ax=axes[1])
     axes[1].set_xlabel("Tid (år)")
     axes[1].set_ylabel("Bly (mg/kg mossa)")
     axes[1].legend()
