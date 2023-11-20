@@ -15,40 +15,32 @@ Pb['Year1975'] = Pb.Year - 1975
 
 Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
-# print(Pb_S)
-# print(Pb_B)
 
-
-# Enkel regression, Linjär modell
-
-Pb_Lan = Pb.loc[Pb['Lan'] == Län]
-T = Pb_Lan['Year1975'].values
-Y = Pb_Lan['Pb'].values
-
+T = Pb_S['Year1975'].values
 t_reg = sm.add_constant(T)
+# Enkel regression, Linjär modell Södermanland
+Y = Pb_S['Pb'].values
 res_lin = sm.OLS(Y, t_reg).fit()
 print(res_lin.summary())
 
 a, b = res_lin.params
+epsilon_lin=res_lin.resid
+
 plt.scatter(T, Y)
 plt.axline((0, a), slope=b)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
-plt.title(Län)
+plt.title('Södermanland linjär')
 plt.show()
 
 
-# Enkel regression differential model
-Pb_Lan = Pb.loc[Pb['Lan'] == Län]
+# Enkel regression differential model Södermanland
+Y = np.log(Y)
+res_exp = sm.OLS(Y, t_reg).fit()
+print(res_exp.summary())
 
-T = Pb_Lan['Year1975'].values
-t_reg = sm.add_constant(T)
-Y = np.log(Pb_Lan['Pb'].values)
-
-res = sm.OLS(Y, t_reg).fit()
-print(res.summary())
-
-C, k = np.exp(res.params[0]), res.params[1]
+C, k = np.exp(res_exp.params[0]), res_exp.params[1]
+epsilon_exp=np.exp(res_exp.resid)
 t = np.linspace(0, 40, 200)
 y = C*np.exp(k*t)
 
@@ -56,11 +48,17 @@ plt.scatter(T, np.exp(Y))
 plt.plot(t, y)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
-plt.title(Län)
+plt.title('Södermanland exponentiell')
 plt.show()
 
+#Jämförelse mellan lin och exp
+fig,axs=plt.subplots(nrows=1,ncols=2)
+axs[0].set_title('Linjär')
+axs[1].set_title('Exponentiell')
 
-
+sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
+sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
+plt.show()
 
 
 # Multipel Regression
