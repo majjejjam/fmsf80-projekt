@@ -20,7 +20,7 @@ Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
 
 # Enkel regression, Linjär modell
-def linReg(Pb, Län):
+def lin_reg(Pb, Län):
     Pb_Lan = Pb.loc[Pb['Lan'] == Län]
     T = Pb_Lan['Year1975'].values
     Y = Pb_Lan['Pb'].values
@@ -38,13 +38,13 @@ def linReg(Pb, Län):
     plt.show()
 
 
-linReg(Pb, 'Blekinge län')
-linReg(Pb, 'Södermanlands län')
+lin_reg(Pb, 'Blekinge län')
+lin_reg(Pb, 'Södermanlands län')
 
 # Enkel regression differential model
 
 
-def expReg(Pb, Län):
+def exp_reg(Pb, Län):
     Pb_Lan = Pb.loc[Pb['Lan'] == Län]
 
     T = Pb_Lan['Year1975'].values
@@ -66,11 +66,11 @@ def expReg(Pb, Län):
     plt.show()
 
 
-expReg(Pb, 'Blekinge län')
+exp_reg(Pb, 'Blekinge län')
 
 
 # Multipel Regression
-def multReg(Pb):
+def mult_reg(Pb):
     Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
     Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
@@ -100,14 +100,14 @@ def multReg(Pb):
 
 # Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
 Pb_ny = Pb[Pb['Year1975'] != 20]
-multReg(Pb_ny)
+mult_reg(Pb_ny)
 
 # Multipel regression exponentiell men där vi tar bort år 20 och 25 (chernobyl)
 Pb_ny = Pb[(Pb['Year1975'] != 20)&(Pb['Year1975'] != 25)]
-multReg(Pb_ny)
+mult_reg(Pb_ny)
 
 #Prediktion utan intervall för 2025
-C,k1,k2=multReg(Pb)
+C,k1,k2=mult_reg(Pb)
 pred_B=C*np.exp(50*k1)
 pred_S=C*np.exp(50*k1)*np.exp(k2)
 print('Prediktion blyhalt 2025')
@@ -138,7 +138,7 @@ def data_intervall(pb):
     res_mult_log = sm.OLS(Y_log, x_reg).fit()
     print(res_mult_log.summary())
     C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
-    C_se, k1_se, k2_se = np.exp(res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2] 
+    C_se, k1_se, k2_se = np.exp(res_mult_log.bse[0]), res_mult_log.bse[1], res_mult_log.bse[2]
     t = np.linspace(0, 100, 200)
     y_exp_S = C*np.exp(t*k1)*np.exp(k2)
     y_exp_B = C*np.exp(t*k1)
@@ -155,17 +155,17 @@ def data_intervall(pb):
     df['Beta B - undre'] = k2 - 2*k2_se
     df['Beta S - övre'] = k1 + 2*k1_se
     df['Beta B - övre'] = k2 + 2*k2_se
-   
+
     y_exp_S_undre = C*np.exp(t*df['Beta S - undre'])*np.exp(df['Beta B - undre'])
     y_exp_B_undre = C*np.exp(t*df['Beta S - undre'])
     y_exp_S_övre = C*np.exp(t*df['Beta S - övre'])*np.exp(df['Beta B - övre'])
     y_exp_B_övre = C*np.exp(t*df['Beta S - övre'])
-   
+
     df['Södermanland - Undre'] = y_exp_S_undre
     df['Blekinge - Undre'] = y_exp_B_undre
     df['Södermanland - Övre'] = y_exp_S_övre
     df['Blekinge - Övre'] = y_exp_B_övre
-   
+
     sns.set(style="whitegrid")
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 10))
 
@@ -198,5 +198,5 @@ def data_intervall(pb):
     print('Södermanland tidigast: '+str(int(pred_S_undre)+1975))
     print('Blekinge senast: '+str(int(pred_B_övre)+1975))
     print('Södermanland senast: '+str(int(pred_S_övre)+1975))
-    
-    return df 
+
+    return df
