@@ -36,6 +36,7 @@ epsilon_lin=res_lin.resid
 
 #Vi visar våra resulat från den linjära modellen 
 #plt.scatter(T, Y)
+sns.set(style="whitegrid")
 sns.scatterplot(x=T, y = Y)
 
 #Vår linjära ekvation med våra estimerade parametrar
@@ -63,6 +64,7 @@ y = C*np.exp(k*t)
 
 #Vi plottar jämförelsen mellan våra mätvärden och estimerade värden från den exponentiella modellen
 #plt.scatter(T, np.exp(Y_log))
+sns.set(style="whitegrid")
 sns.scatterplot(x= T, y =np.exp(Y_log))
 plt.plot(t, y)
 plt.xlabel("Tid (år)")
@@ -113,6 +115,7 @@ y_exp_B = C*np.exp(t*k1)
 #plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
 
 #Scatterplots med våra exponentiella modeller för respektive län
+sns.set(style="whitegrid")
 sns.scatterplot(x=Pb_S['Year1975'].values, y=Pb_S['Pb'].values, c='blue', label = "Södermanland - Exponentiell modell")
 sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label = "Blekinge - Exponentiell modell")
 
@@ -129,16 +132,6 @@ plt.title("Exponentiella modeller")
 #Sparar och visar grafen med våra exponentiella modeller 
 plt.savefig('Grafer/ExpModeller.png')
 plt.show()
-
-
-
-# Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
-Pb_ny = Pb[Pb['Year1975'] != 20]
-
-
-# Multipel regression exponentiell men där vi tar bort år 20 och 25 (chernobyl)
-Pb_ny = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
-
 
 
 ## Prediktion med intervall
@@ -223,6 +216,7 @@ pred_res_2025 = pd.DataFrame(data=data, index=['Södermanland','Blekinge']
 
 #Prediktion när under 10mg/g mossa 
 
+
 #Latex-tabeller för våra regressionsresultat
 latex_table_lin = res_lin.summary().as_latex()
 latex_table_exp = res_exp.summary().as_latex()
@@ -240,6 +234,141 @@ with open('LatexTabeller/regression_table_mult_log.tex', 'w') as f:
 
 with open('LatexTabeller/prediktioner_2025.tex', 'w') as f:
     f.write(latex_prediktioner_2025)
+
+
+## Multipel regression exponentiell men där vi flyttar bak alla år efter 1995 med 20 år (chernobyl)
+Pb[Pb['Year1975'] != 20]
+Pb_ny = Pb.copy() 
+Pb_ny.loc[Pb_ny['Year1975'] >= 20, 'Year1975'] -= 20
+Pb_S_ny = Pb_ny.loc[Pb['Lan'] == 'Södermanlands län']
+Pb_B_ny = Pb_ny.loc[Pb['Lan'] == 'Blekinge län']
+
+Y_log = np.log(Pb_ny['Pb'].values)
+
+#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a 
+Platser = Pb_ny['Lan'].values
+P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
+
+#Vi kombinerar dessa med våra tidsvärden som tid från år 1975
+T = Pb_ny['Year1975'].values
+X = list(zip(T, P))
+
+#Regression på våra logaritmerade blyhalter som en funktion av tid och län 
+x_reg = sm.add_constant(X)
+res_mult_log = sm.OLS(Y_log, x_reg).fit()
+print(res_mult_log.summary())
+
+#Våra parametrar från vår multipel regression 
+C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+
+#Våra tidsvärden mellan 1975 och 2015 
+t = np.linspace(0, 40, 200)
+
+#Värdena på våra exponentiella funktioner för respektive län 
+y_exp_S = C*np.exp(t*k1)*np.exp(k2)
+y_exp_B = C*np.exp(t*k1)
+
+#plt.scatter(Pb_S['Year1975'].values, Pb_S['Pb'].values, c='blue')
+#plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
+
+#Scatterplots med våra exponentiella modeller för respektive län
+sns.scatterplot(x=Pb_S_ny['Year1975'].values, y=Pb_S_ny['Pb'].values, c='blue', label = "Södermanland - Exponentiell modell")
+sns.scatterplot(x=Pb_B_ny['Year1975'].values, y=Pb_B_ny['Pb'].values, c='red', label = "Blekinge - Exponentiell modell")
+
+#Våran mätdata för respektive län
+plt.plot(t, y_exp_S, c='blue', label = "Södermanland - Mätvärden")
+plt.plot(t, y_exp_B, c='red', label = "Blekinge - Mätvärden")
+
+#Lägger till rätt titlar på axlar 
+plt.xlabel("Tid (år)")
+plt.ylabel("Bly (mg/kg mossa)")
+plt.legend()
+plt.title("Exponentiella modeller")
+
+#Sparar och visar grafen med våra exponentiella modeller 
+plt.savefig('GraferAvvikande/ExpModellerAvvikande.png')
+plt.show()
+
+
+## Prediktion med intervall
+#Våra konfidensintervall för vår multipel regression modell 
+intervals=res_mult_log.conf_int()
+C_h,k1_h,k2_h=np.exp(intervals[0][1]),intervals[1][1],intervals[2][1]
+C_l,k1_l,k2_l=np.exp(intervals[0][0]),intervals[1][0],intervals[2][0]
+
+#Våran exponentiellla modell
+def exp(C,k1,k2,t):
+    return C*np.exp(t*k1)*np.exp(k2)
+
+#Södermanland undre och övre intervall
+y_exp_S_undre=exp(C_l,k1_l,k2_l,t)
+y_exp_S = exp(C,k1,k2,t)
+y_exp_S_övre=exp(C_h,k1_h,k2_h,t)
+
+#Blekinge undre och övre intervall
+y_exp_B_undre=exp(C_l,k1_l,0,t)
+y_exp_B = exp(C,k1,0,t)
+y_exp_B_övre=exp(C_h,k1_h,0,t)
+
+##Grafer med både undre och övre konfidensinvervall för respektive län  
+sns.set(style="whitegrid")
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
+
+#Våra tre respektive modeller för Södermanland
+sns.lineplot(x=t, y=y_exp_S, color='blue',
+                label='Södermanland', ax=axes[0])
+sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue',
+                label='Södermanland undre', ax=axes[0])
+sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue',
+                label='Södermanland övre', ax=axes[0])
+
+#Namnger våra axlar korrekt 
+axes[0].set_xlabel("Tid (år)")
+axes[0].set_ylabel("Bly (mg/kg mossa)")
+axes[0].legend()
+axes[0].set_title("Södermanland")
+
+#Våra tre respektive modeller för Blekinge
+sns.lineplot(x=t, y=y_exp_B, color='red', label='Blekinge', ax=axes[1])
+sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral',
+                label='Blekinge undre', ax=axes[1])
+sns.lineplot(x=t, y=y_exp_B_övre, color='darkred',
+                label='Blekinge övre', ax=axes[1])
+
+#Namnger våra axlar korrekt 
+axes[1].set_xlabel("Tid (år)")
+axes[1].set_ylabel("Bly (mg/kg mossa)")
+axes[1].legend()
+axes[1].set_title("Blekinge")
+
+#Justerar och sparar grafen 
+plt.tight_layout()
+plt.savefig('GraferAvvikande/ExpModellerIntervallAvvikande.png')
+plt.show()
+
+##Våran prediktion av blyvärdet 2025 för respektive län
+#Södermanland 
+pred_exp_S_undre=round(exp(C_l,k1_l,k2_l,50),2)
+pred_exp_S = round(exp(C,k1,k2,50),2)
+pred_exp_S_övre=round(exp(C_h,k1_h,k2_h,50),2)
+
+#Blekinge
+pred_exp_B_undre=round(exp(C_l,k1_l,0,50),2)
+pred_exp_B = round(exp(C,k1,0,50),2)
+pred_exp_B_övre= round(exp(C_h,k1_h,0,50),2)
+
+#Presentation av resultat för värden år 2025
+print('PREDIKTION 2025[Övre, medel,Undre]')
+print('Blekinge: '+str(pred_exp_B_övre)+', '+str(pred_exp_B)+', '+str(pred_exp_B_undre))
+print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred_exp_S_undre))
+
+#En tabell med våra resultat
+data = [[pred_exp_S_undre,pred_exp_S,pred_exp_S_övre],
+        [pred_exp_B_undre,pred_exp_B,pred_exp_B_övre]]
+
+pred_res_2025_avvikande = pd.DataFrame(data=data, index=['Södermanland','Blekinge']
+                  ,columns=['Undre Gräns','Väntevärde','Övre Gräns'])
+
 
 
 #Kommenterad gammal kod 
