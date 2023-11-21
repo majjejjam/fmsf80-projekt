@@ -136,7 +136,7 @@ print('PREDIKTION 2025'+'[Mitten,Undre,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
 print('Södermanland:'+str(Pred_S_2025) )
 
-#%%Prediktion när under 10mg/g mossa (Sörmland)
+#%%Prediktion när under 10mg/g mossa (Sörmland) (Gaussapproximation)
 y_0=10
 y_mean = np.mean(Pb_S['Pb'].values)
 n=len(Pb_S['Pb'])
