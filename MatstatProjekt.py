@@ -19,15 +19,16 @@ Pb['Year1975'] = Pb.Year - 1975
 Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
-T = Pb_S['Year1975'].values
-t_reg = sm.add_constant(T)
 
-# Enkel regression, Linjär modell Södermanland
+T = Pb_S['Year1975'].values
 Y = Pb_S['Pb'].values
-res_lin = sm.OLS(Y, t_reg).fit()
+
+#%% Enkel regression, Linjär modell Södermanland
+
+res_lin=smf.ols(formula='Pb~Year1975',data=Pb_S).fit()
 print(res_lin.summary())
 
-#Våra parametrar för den linjära modellen
+#våra parametrar för den linjära modellen
 a, b = res_lin.params
 
 #Vår linjära modells residualer
@@ -47,9 +48,10 @@ plt.savefig('Grafer/SödermanlandLinjär.png')
 plt.show()
 
 
-# Enkel regression differential model Södermanland
+#%% Enkel regression differential model Södermanland
+
 Y_log = np.log(Y)
-res_exp = sm.OLS(Y_log, t_reg).fit()
+res_exp = smf.ols(formula='np.log(Pb)~Year1975',data=Pb_S).fit()
 print(res_exp.summary())
 
 #Våra parametrar för den exponentiella modellen
@@ -73,7 +75,7 @@ plt.title('Södermanland exponentiell')
 plt.savefig('Grafer/SödermanlandExponentiell.png')
 plt.show()
 
-#Jämförelse mellan linjär och exponentiell modell 
+#%%Jämförelse mellan linjär och exponentiell modell 
 fig,axs=plt.subplots(nrows=1,ncols=2)
 axs[0].set_title('Linjär')
 axs[1].set_title('Exponentiell')
@@ -84,21 +86,11 @@ sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
 plt.show()
 
-## Multipel Regression Exponentiell 
-#Vi logaritmerar våra blyhalter
-Y_log = np.log(Pb['Pb'].values)
-
-#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a 
-Platser = Pb['Lan'].values
-P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
-
-#Vi kombinerar dessa med våra tidsvärden som tid från år 1975
-T = Pb['Year1975'].values
-X = list(zip(T, P))
+#%% Multipel Regression Exponentiell 
+Pb['Lan_I'] = [0 if Lan == 'Blekinge län' else 1 for Lan in Pb['Lan'].values]
 
 #Regression på våra logaritmerade blyhalter som en funktion av tid och län 
-x_reg = sm.add_constant(X)
-res_mult_log = sm.OLS(Y_log, x_reg).fit()
+res_mult_log = smf.ols(formula='np.log(Pb)~Year1975+Lan_I',data=Pb).fit()
 print(res_mult_log.summary())
 
 #Våra parametrar från vår multipel regression 
@@ -116,12 +108,12 @@ y_exp_B = C*np.exp(t*k1)
 
 #Scatterplots med våra exponentiella modeller för respektive län
 sns.set(style="whitegrid")
-sns.scatterplot(x=Pb_S['Year1975'].values, y=Pb_S['Pb'].values, c='blue', label = "Södermanland - Exponentiell modell")
-sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label = "Blekinge - Exponentiell modell")
+sns.scatterplot(x=Pb_S['Year1975'].values, y=Pb_S['Pb'].values, c='blue', label = "Södermanland - Mätvärden")
+sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label = "Blekinge - Mätvärden")
 
 #Våran mätdata för respektive län
-plt.plot(t, y_exp_S, c='blue', label = "Södermanland - Mätvärden")
-plt.plot(t, y_exp_B, c='red', label = "Blekinge - Mätvärden")
+plt.plot(t, y_exp_S, c='blue', label = "Södermanland-Exp modell")
+plt.plot(t, y_exp_B, c='red', label = "Blekinge - Exp modell")
 
 #Lägger till rätt titlar på axlar 
 plt.xlabel("Tid (år)")
@@ -132,9 +124,12 @@ plt.title("Exponentiella modeller")
 #Sparar och visar grafen med våra exponentiella modeller 
 plt.savefig('Grafer/ExpModeller.png')
 plt.show()
-
-
-## Prediktion med intervall
+#%% Prediktion Ny
+Pb_0=pd.DataFrame({'Year1975' : [50, 50],'Lan_I' : [0, 1]})
+Pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)
+print(str(Pred))
+print(str(Pred[0][0]))
+#%% Prediktion med intervall
 #Våra konfidensintervall för vår multipel regression modell 
 intervals=res_mult_log.conf_int()
 C_h,k1_h,k2_h=np.exp(intervals[0][1]),intervals[1][1],intervals[2][1]
@@ -419,3 +414,5 @@ print(str(pred))
 #Prediktion när under 10mg/g mossa 
 
 
+
+# %%
