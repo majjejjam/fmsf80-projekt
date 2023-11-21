@@ -55,11 +55,15 @@ print(reg_exp.summary())
 C, k = np.exp(reg_exp.params[0]), reg_exp.params[1]
 
 #Vår linjära modells residualer
-epsilon_exp=np.exp(reg_exp.resid)
 t = np.linspace(0, 40, 200)
 
 #Estimerade värden från vår exponentiella modell
 y = C*np.exp(k*t)
+
+#Exponentiell residual
+epsilon_exp = []
+for n in Y:
+    epsilon_exp.append(np.abs(C*np.exp(k*n) - n))
 
 #Vi plottar jämförelsen mellan våra mätvärden och estimerade värden från den exponentiella modellen
 #plt.scatter(T, np.exp(Y_log))
