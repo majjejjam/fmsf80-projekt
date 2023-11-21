@@ -1,3 +1,4 @@
+#%%Import 
 import numpy as np
 import scipy.stats as stats
 import statistics
@@ -18,7 +19,7 @@ Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
 T = Pb_S['Year1975'].values
 t_reg = sm.add_constant(T)
-# Enkel regression, Linjär modell Södermanland
+#%% Enkel regression, Linjär modell Södermanland
 Y = Pb_S['Pb'].values
 res_lin = sm.OLS(Y, t_reg).fit()
 print(res_lin.summary())
@@ -34,7 +35,7 @@ plt.title('Södermanland linjär')
 plt.show()
 
 
-# Enkel regression differential model Södermanland
+#%% Enkel regression differential model Södermanland
 Y_log = np.log(Y)
 res_exp = sm.OLS(Y_log, t_reg).fit()
 print(res_exp.summary())
@@ -51,7 +52,7 @@ plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland exponentiell')
 plt.show()
 
-#Jämförelse mellan lin och exp
+#%%Jämförelse mellan lin och exp
 fig,axs=plt.subplots(nrows=1,ncols=2)
 axs[0].set_title('Linjär')
 axs[1].set_title('Exponentiell')
@@ -60,7 +61,7 @@ sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.show()
 
-# Multipel Regression Exponentiell
+#%%Multipel Regression Exponentiell
 Y_log = np.log(Pb['Pb'].values)
 Platser = Pb['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
@@ -86,11 +87,11 @@ plt.show()
 
 
 
-# Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
+#%%Multipel regression exponentiell men där vi tar bort år 20 (chernobyl)
 Pb_ny = Pb[Pb['Year1975'] != 20]
 
 
-# Multipel regression exponentiell men där vi tar bort år 20 och 25 (chernobyl)
+#%%Multipel regression exponentiell men där vi tar bort år 20 och 25 (chernobyl)
 Pb_ny = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
 
 
@@ -180,6 +181,10 @@ print('PREDIKTION 2025[Övre, medel,Undre]')
 print('Blekinge: '+str(pred_exp_B_övre)+', '+str(pred_exp_B)+', '+str(pred_exp_B_undre))
 print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred_exp_S_undre))
 
+Pb_0 = pd.DataFrame({'Year1975' : [50],'Lan' : [1]})
+print(str(Pb_0))
+pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)      
+print(str(pred))                                        
 #pred_B_undre = np.log(10/C)/(k1 - 2*k1_se)
 #pred_S_undre = np.log(10/(C*np.exp(k2 - 2*k2_se)))/(k1 - 2*k1_se)
 #pred_B_övre = np.log(10/C)/(k1 + 2*k1_se)
@@ -194,3 +199,5 @@ print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred
 #Prediktion när under 10mg/g mossa 
 
 
+
+# %%
