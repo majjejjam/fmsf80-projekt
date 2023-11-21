@@ -77,7 +77,7 @@ plt.savefig('Grafer/SödermanlandExponentiell.png')
 plt.show()
 
 #Jämförelse mellan linjär och exponentiell modell
-fig,axs=plt.subplots(nrows=1,ncols=2)
+fig,axs=plt.subplots(1, 2, constrained_layout=True)
 axs[0].set_title('Linjär')
 axs[1].set_title('Exponentiell')
 
@@ -159,7 +159,7 @@ y_exp_B_övre=exp(C_h,k1_h,0,t)
 
 ##Grafer med både undre och övre konfidensinvervall för respektive län
 sns.set(style="whitegrid")
-fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
+fig,axs=plt.subplots(2, 1, constrained_layout=True)
 
 #Våra tre respektive modeller för Södermanland
 sns.lineplot(x=t, y=y_exp_S, color='blue',
@@ -315,7 +315,7 @@ y_exp_B_övre=exp(C_h,k1_h,0,t)
 
 ##Grafer med både undre och övre konfidensinvervall för respektive län
 sns.set(style="whitegrid")
-fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
+fig,axs=plt.subplots(2, 1, constrained_layout=True)
 
 #Våra tre respektive modeller för Södermanland
 sns.lineplot(x=t, y=y_exp_S, color='blue',
