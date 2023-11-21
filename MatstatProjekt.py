@@ -15,15 +15,12 @@ Pb.Lan = Pb.Lan.astype('category')
 #Vi skapar en kolumn med gått tid från 1975
 Pb['Year1975'] = Pb.Year - 1975
 
-# print( Pb.describe() )
-
 #Vi delar upp datan per län
 Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
 
 T = Pb_S['Year1975'].values
 t_reg = sm.add_constant(T)
-#%% Enkel regression, Linjär modell Södermanland
 
 # Enkel regression, Linjär modell Södermanland
 Y = Pb_S['Pb'].values
