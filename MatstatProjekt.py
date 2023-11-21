@@ -1,4 +1,4 @@
-#%%Import 
+#%%Import
 import numpy as np
 import scipy.stats as stats
 import statistics
@@ -16,47 +16,46 @@ Pb.Lan = Pb.Lan.astype('category')
 Pb['Year1975'] = Pb.Year - 1975
 
 #Vi delar upp datan per län
-Pb_S = Pb.loc[Pb['Lan'] == 'Södermanlands län']
-Pb_B = Pb.loc[Pb['Lan'] == 'Blekinge län']
+Pb_B = Pb.query("Lan=='Blekinge län'")
+Pb_S = Pb.query("Lan=='Södermanlands län'")
 
 T = Pb_S['Year1975'].values
-t_reg = sm.add_constant(T)
+T_alpha = sm.add_constant(T)
 
 # Enkel regression, Linjär modell Södermanland
 Y = Pb_S['Pb'].values
-res_lin = sm.OLS(Y, t_reg).fit()
-print(res_lin.summary())
+reg_lin = sm.OLS(Y, T_alpha).fit()
+print(reg_lin.summary())
 
 #Våra parametrar för den linjära modellen
-a, b = res_lin.params
+alpha, beta = reg_lin.params
 
 #Vår linjära modells residualer
-epsilon_lin=res_lin.resid
+epsilon_lin=reg_lin.resid
 
-#Vi visar våra resulat från den linjära modellen 
+#Vi visar våra resulat från den linjära modellen
 #plt.scatter(T, Y)
 sns.set(style="whitegrid")
 sns.scatterplot(x=T, y = Y)
 
 #Vår linjära ekvation med våra estimerade parametrar
-plt.axline((0, a), slope=b)
+plt.axline((0, alpha), slope=beta)
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland linjär')
 plt.savefig('Grafer/SödermanlandLinjär.png')
 plt.show()
 
-
 # Enkel regression differential model Södermanland
 Y_log = np.log(Y)
-res_exp = sm.OLS(Y_log, t_reg).fit()
-print(res_exp.summary())
+reg_exp = sm.OLS(Y_log, T_alpha).fit()
+print(reg_exp.summary())
 
 #Våra parametrar för den exponentiella modellen
-C, k = np.exp(res_exp.params[0]), res_exp.params[1]
+C, k = np.exp(reg_exp.params[0]), reg_exp.params[1]
 
 #Vår linjära modells residualer
-epsilon_exp=np.exp(res_exp.resid)
+epsilon_exp=np.exp(reg_exp.resid)
 t = np.linspace(0, 40, 200)
 
 #Estimerade värden från vår exponentiella modell
@@ -73,7 +72,7 @@ plt.title('Södermanland exponentiell')
 plt.savefig('Grafer/SödermanlandExponentiell.png')
 plt.show()
 
-#Jämförelse mellan linjär och exponentiell modell 
+#Jämförelse mellan linjär och exponentiell modell
 fig,axs=plt.subplots(nrows=1,ncols=2)
 axs[0].set_title('Linjär')
 axs[1].set_title('Exponentiell')
@@ -84,11 +83,11 @@ sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
 plt.show()
 
-## Multipel Regression Exponentiell 
+## Multipel Regression Exponentiell
 #Vi logaritmerar våra blyhalter
 Y_log = np.log(Pb['Pb'].values)
 
-#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a 
+#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a
 Platser = Pb['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
 
@@ -96,18 +95,18 @@ P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
 T = Pb['Year1975'].values
 X = list(zip(T, P))
 
-#Regression på våra logaritmerade blyhalter som en funktion av tid och län 
+#Regression på våra logaritmerade blyhalter som en funktion av tid och län
 x_reg = sm.add_constant(X)
 res_mult_log = sm.OLS(Y_log, x_reg).fit()
 print(res_mult_log.summary())
 
-#Våra parametrar från vår multipel regression 
+#Våra parametrar från vår multipel regression
 C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 
-#Våra tidsvärden mellan 1975 och 2015 
+#Våra tidsvärden mellan 1975 och 2015
 t = np.linspace(0, 40, 200)
 
-#Värdena på våra exponentiella funktioner för respektive län 
+#Värdena på våra exponentiella funktioner för respektive län
 y_exp_S = C*np.exp(t*k1)*np.exp(k2)
 y_exp_B = C*np.exp(t*k1)
 
@@ -123,19 +122,19 @@ sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label =
 plt.plot(t, y_exp_S, c='blue', label = "Södermanland - Mätvärden")
 plt.plot(t, y_exp_B, c='red', label = "Blekinge - Mätvärden")
 
-#Lägger till rätt titlar på axlar 
+#Lägger till rätt titlar på axlar
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.legend()
 plt.title("Exponentiella modeller")
 
-#Sparar och visar grafen med våra exponentiella modeller 
+#Sparar och visar grafen med våra exponentiella modeller
 plt.savefig('Grafer/ExpModeller.png')
 plt.show()
 
 
 ## Prediktion med intervall
-#Våra konfidensintervall för vår multipel regression modell 
+#Våra konfidensintervall för vår multipel regression modell
 intervals=res_mult_log.conf_int()
 C_h,k1_h,k2_h=np.exp(intervals[0][1]),intervals[1][1],intervals[2][1]
 C_l,k1_l,k2_l=np.exp(intervals[0][0]),intervals[1][0],intervals[2][0]
@@ -154,7 +153,7 @@ y_exp_B_undre=exp(C_l,k1_l,0,t)
 y_exp_B = exp(C,k1,0,t)
 y_exp_B_övre=exp(C_h,k1_h,0,t)
 
-##Grafer med både undre och övre konfidensinvervall för respektive län  
+##Grafer med både undre och övre konfidensinvervall för respektive län
 sns.set(style="whitegrid")
 fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
 
@@ -166,7 +165,7 @@ sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue',
 sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue',
                 label='Södermanland övre', ax=axes[0])
 
-#Namnger våra axlar korrekt 
+#Namnger våra axlar korrekt
 axes[0].set_xlabel("Tid (år)")
 axes[0].set_ylabel("Bly (mg/kg mossa)")
 axes[0].legend()
@@ -179,19 +178,19 @@ sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral',
 sns.lineplot(x=t, y=y_exp_B_övre, color='darkred',
                 label='Blekinge övre', ax=axes[1])
 
-#Namnger våra axlar korrekt 
+#Namnger våra axlar korrekt
 axes[1].set_xlabel("Tid (år)")
 axes[1].set_ylabel("Bly (mg/kg mossa)")
 axes[1].legend()
 axes[1].set_title("Blekinge")
 
-#Justerar och sparar grafen 
+#Justerar och sparar grafen
 plt.tight_layout()
 plt.savefig('Grafer/ExpModellerIntervall.png')
 plt.show()
 
 ##Våran prediktion av blyvärdet 2025 för respektive län
-#Södermanland 
+#Södermanland
 pred_exp_S_undre=round(exp(C_l,k1_l,k2_l,50),2)
 pred_exp_S = round(exp(C,k1,k2,50),2)
 pred_exp_S_övre=round(exp(C_h,k1_h,k2_h,50),2)
@@ -214,12 +213,12 @@ pred_res_2025 = pd.DataFrame(data=data, index=['Södermanland','Blekinge']
                   ,columns=['Undre Gräns','Väntevärde','Övre Gräns'])
 
 
-#Prediktion när under 10mg/g mossa 
+#Prediktion när under 10mg/g mossa
 
 
 #Latex-tabeller för våra regressionsresultat
-latex_table_lin = res_lin.summary().as_latex()
-latex_table_exp = res_exp.summary().as_latex()
+latex_table_lin = reg_lin.summary().as_latex()
+latex_table_exp = reg_exp.summary().as_latex()
 latex_table_mult_log = res_mult_log.summary().as_latex()
 latex_prediktioner_2025 = pred_res_2025.to_latex()
 
@@ -238,14 +237,14 @@ with open('LatexTabeller/prediktioner_2025.tex', 'w') as f:
 
 ## Multipel regression exponentiell men där vi flyttar bak alla år efter 1995 med 20 år (chernobyl)
 #Pb[Pb['Year1975'] != 20]
-Pb_ny = Pb.copy() 
+Pb_ny = Pb.copy()
 Pb_ny.loc[Pb_ny['Year1975'] >= 20, 'Year1975'] -= 20
 Pb_S_ny = Pb_ny.loc[Pb['Lan'] == 'Södermanlands län']
 Pb_B_ny = Pb_ny.loc[Pb['Lan'] == 'Blekinge län']
 
 Y_log = np.log(Pb_ny['Pb'].values)
 
-#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a 
+#Vi skapar en dummy-variabel för våra län där Blekinge ges en 0 och Södermanland ges en 1a
 Platser = Pb_ny['Lan'].values
 P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
 
@@ -253,18 +252,18 @@ P = [0 if plats == 'Blekinge län' else 1 for plats in Platser]
 T = Pb_ny['Year1975'].values
 X = list(zip(T, P))
 
-#Regression på våra logaritmerade blyhalter som en funktion av tid och län 
+#Regression på våra logaritmerade blyhalter som en funktion av tid och län
 x_reg = sm.add_constant(X)
 res_mult_log = sm.OLS(Y_log, x_reg).fit()
 print(res_mult_log.summary())
 
-#Våra parametrar från vår multipel regression 
+#Våra parametrar från vår multipel regression
 C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 
-#Våra tidsvärden mellan 1975 och 2015 
+#Våra tidsvärden mellan 1975 och 2015
 t = np.linspace(0, 40, 200)
 
-#Värdena på våra exponentiella funktioner för respektive län 
+#Värdena på våra exponentiella funktioner för respektive län
 y_exp_S = C*np.exp(t*k1)*np.exp(k2)
 y_exp_B = C*np.exp(t*k1)
 
@@ -279,19 +278,19 @@ sns.scatterplot(x=Pb_B_ny['Year1975'].values, y=Pb_B_ny['Pb'].values, c='red', l
 plt.plot(t, y_exp_S, c='blue', label = "Södermanland - Mätvärden")
 plt.plot(t, y_exp_B, c='red', label = "Blekinge - Mätvärden")
 
-#Lägger till rätt titlar på axlar 
+#Lägger till rätt titlar på axlar
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.legend()
 plt.title("Exponentiella modeller")
 
-#Sparar och visar grafen med våra exponentiella modeller 
+#Sparar och visar grafen med våra exponentiella modeller
 plt.savefig('GraferAvvikande/ExpModellerAvvikande.png')
 plt.show()
 
 
 ## Prediktion med intervall
-#Våra konfidensintervall för vår multipel regression modell 
+#Våra konfidensintervall för vår multipel regression modell
 intervals=res_mult_log.conf_int()
 C_h,k1_h,k2_h=np.exp(intervals[0][1]),intervals[1][1],intervals[2][1]
 C_l,k1_l,k2_l=np.exp(intervals[0][0]),intervals[1][0],intervals[2][0]
@@ -310,7 +309,7 @@ y_exp_B_undre=exp(C_l,k1_l,0,t)
 y_exp_B = exp(C,k1,0,t)
 y_exp_B_övre=exp(C_h,k1_h,0,t)
 
-##Grafer med både undre och övre konfidensinvervall för respektive län  
+##Grafer med både undre och övre konfidensinvervall för respektive län
 sns.set(style="whitegrid")
 fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
 
@@ -322,7 +321,7 @@ sns.lineplot(x=t, y=y_exp_S_undre, color='lightblue',
 sns.lineplot(x=t, y=y_exp_S_övre, color='darkblue',
                 label='Södermanland övre', ax=axes[0])
 
-#Namnger våra axlar korrekt 
+#Namnger våra axlar korrekt
 axes[0].set_xlabel("Tid (år)")
 axes[0].set_ylabel("Bly (mg/kg mossa)")
 axes[0].legend()
@@ -335,19 +334,19 @@ sns.lineplot(x=t, y=y_exp_B_undre, color='lightcoral',
 sns.lineplot(x=t, y=y_exp_B_övre, color='darkred',
                 label='Blekinge övre', ax=axes[1])
 
-#Namnger våra axlar korrekt 
+#Namnger våra axlar korrekt
 axes[1].set_xlabel("Tid (år)")
 axes[1].set_ylabel("Bly (mg/kg mossa)")
 axes[1].legend()
 axes[1].set_title("Blekinge")
 
-#Justerar och sparar grafen 
+#Justerar och sparar grafen
 plt.tight_layout()
 plt.savefig('GraferAvvikande/ExpModellerIntervallAvvikande.png')
 plt.show()
 
 ##Våran prediktion av blyvärdet 2025 för respektive län
-#Södermanland 
+#Södermanland
 pred_exp_S_undre=round(exp(C_l,k1_l,k2_l,50),2)
 pred_exp_S = round(exp(C,k1,k2,50),2)
 pred_exp_S_övre=round(exp(C_h,k1_h,k2_h,50),2)
@@ -371,7 +370,7 @@ pred_res_2025_avvikande = pd.DataFrame(data=data, index=['Södermanland','Blekin
 
 
 
-#Kommenterad gammal kod 
+#Kommenterad gammal kod
 #C, k1, k2 = np.exp(
 #    res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
 #C_se, k1_se, k2_se = np.exp(
@@ -403,8 +402,8 @@ pred_res_2025_avvikande = pd.DataFrame(data=data, index=['Södermanland','Blekin
 
 Pb_0 = pd.DataFrame({'Year1975' : [50],'Lan' : [1]})
 print(str(Pb_0))
-pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)      
-print(str(pred))                                        
+pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)
+print(str(pred))
 #pred_B_undre = np.log(10/C)/(k1 - 2*k1_se)
 #pred_S_undre = np.log(10/(C*np.exp(k2 - 2*k2_se)))/(k1 - 2*k1_se)
 #pred_B_övre = np.log(10/C)/(k1 + 2*k1_se)
@@ -416,6 +415,4 @@ print(str(pred))
 #print('Blekinge senast: '+str(int(pred_B_övre)+1975))
 #print('Södermanland senast: '+str(int(pred_S_övre)+1975))
 
-#Prediktion när under 10mg/g mossa 
-
-
+#Prediktion när under 10mg/g mossa
