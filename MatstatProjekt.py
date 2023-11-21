@@ -135,8 +135,25 @@ Pred_B_2025=[np.exp(Pred['mean'][0]),np.exp(Pred['mean_ci_lower'][0]),np.exp(Pre
 print('PREDIKTION 2025'+'[Mitten,Undre,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
 print('Södermanland:'+str(Pred_S_2025) )
-#Prediktion när under 10mg/g mossa
 
+#%%Prediktion när under 10mg/g mossa (Sörmland)
+y_0=10
+y_mean = np.mean(Pb_S['Pb'].values)
+n=len(Pb_S['Pb'])
+t=stats.t.ppf(0.975,n-2)
+
+
+x_0_approx=(np.log(y_0)-np.log(C)-k2*1)/k1
+cov=res_mult_log.cov_params()
+s=np.sqrt((cov['Year1975'][1]))
+x_mean=np.mean(Pb_S['Year1975'])
+s_xx=sum((x-x_mean)**2 for x in Pb_S['Year1975'].values)
+width_interval=t*(s/np.abs(k1))*np.sqrt(1+1/n+((y_0-y_mean)**2)/((k1**2)*s_xx))
+x_0_final=1975+x_0_approx
+pred=[x_0_final+width_interval,x_0_final,x_0_final-width_interval]
+print('Prediktion när mg/g mossa är under 10')
+print('[över, medel, under]')
+print("Södermanland: "+str(pred))
 #%% Prediktion plottad
 #Våra konfidensintervall för vår multipel regression modell 
 intervals=res_mult_log.conf_int()
