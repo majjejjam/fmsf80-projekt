@@ -85,6 +85,8 @@ t_alpha_pm = np.array([-1, 1]) * t_alpha
 
 I_beta = beta + t_alpha_pm * s/np.sqrt(Sxx)
 I_alpha = alpha + t_alpha_pm * s * np.sqrt(1/n + x_bar**2/Sxx)
+#               ^
+# Här behövs inte ± då t_alpha_pm är en array både plus och minus
 
 # eller på matris form
 XtX = np.linalg.inv(X.T @ X)
@@ -114,9 +116,13 @@ x0 = 50  # år 2025
 mu0 = alpha + beta*x0
 D_mu = s * np.sqrt(1/n + (x0-x_bar)**2 / Sxx)
 I_mu0 = mu0 + t_alpha_pm * D_mu
+#           ^
+# Här behövs inte ± då t_alpha_pm är en array både plus och minus
 
 D_y = s * np.sqrt(1 + 1/n + (x0-x_bar)**2 / Sxx)
 I_y0 = alpha + beta*x0 + t_alpha_pm * D_y
+#                      ^
+#                  Samma här
 
 # on matrix form
 X0 = np.array([1, x0])
