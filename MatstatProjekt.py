@@ -139,6 +139,9 @@ print('PREDIKTION 2025'+'[Mitten,Undre,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
 print('Södermanland:'+str(Pred_S_2025) )
 
+pred_data = [Pred_S_2025,Pred_B_2025]
+columns = ['Mitten','Undre','Övre']
+
 #%%Nytt försök Prediktion 10mg/g (Sörmland)
 cov=res_mult_log.cov_params()
 cov_matrix=[[cov['Intercept'][0],cov['Year1975'][0]],[cov['Intercept'][1],cov['Year1975'][1]]]
@@ -286,13 +289,13 @@ print('Blekinge: '+str(pred_exp_B_övre)+', '+str(pred_exp_B)+', '+str(pred_exp_
 print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred_exp_S_undre))
 
 #En tabell med våra resultat
-data = [[pred_exp_S_undre,pred_exp_S,pred_exp_S_övre],
+pred_data_2 = [[pred_exp_S_undre,pred_exp_S,pred_exp_S_övre],
         [pred_exp_B_undre,pred_exp_B,pred_exp_B_övre]]
 
-pred_res_2025 = pd.DataFrame(data=data, index=['Södermanland','Blekinge']
-                  ,columns=['Undre Gräns','Väntevärde','Övre Gräns'])
+columns_2 = ['Undre Gräns','Väntevärde','Övre Gräns']
 
-
+pred_res_2025 = pd.DataFrame(data=pred_data, index=['Södermanland','Blekinge']
+                  ,columns=columns)
 
 
 
