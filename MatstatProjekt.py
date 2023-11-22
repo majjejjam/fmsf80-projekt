@@ -11,6 +11,7 @@ import statsmodels.formula.api as smf
 #Vår data av blyhalter
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
 Pb.Lan = Pb.Lan.astype('category')
+Pb['Lan'] = Pb['Lan'].astype('category')
 
 #Vi skapar en kolumn med gått tid från 1975
 Pb['Year1975'] = Pb.Year - 1975
@@ -126,6 +127,8 @@ plt.title("Exponentiella modeller")
 #Sparar och visar grafen med våra exponentiella modeller
 plt.savefig('Grafer/ExpModeller.png')
 plt.show()
+#%% Lineär modell Multipel regression
+#res_mult_lin = smf.ols(formula='Pb ~ C(Lan) + Year1975 + C(Lan):Year1975', data=Pb).fit()
 #%% Prediktion 2025
 Pb_0=pd.DataFrame({'Year1975' : [50, 50],'Lan_I' : [0, 1]})
 Pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)
@@ -139,19 +142,21 @@ print('Södermanland:'+str(Pred_S_2025) )
 #%%Nytt försök Prediktion 10mg/g (Sörmland)
 cov=res_mult_log.cov_params()
 cov_matrix=[[cov['Intercept'][0],cov['Year1975'][0]],[cov['Intercept'][1],cov['Year1975'][1]]]
+
 print (str(cov))
 print(str(cov_matrix))
 
+
 x0_S=(np.log(10)-np.log(C)-k2*1)/k1
 x0_B=(np.log(10)-np.log(C)-k2*0)/k1
-vv=[np.log(10),x0_S]
+vv=[np.log(10),x0_S,k2]
 
-res=stats.multivariate_normal.rvs(mean=vv,cov=cov_matrix,size=1000)
-#year_quantiles = np.percentile(res[1], [2.5, 97.5])
-#print(str(year_quantiles))
+res=stats.multivariate_normal.rvs(mean=vv,cov=cov,size=1000)
+year_quantiles = np.percentile(res[:,1], [2.5, 97.5])
+print(str(year_quantiles))
 print(str(res))
-quant_u = np.quantile(res[:, 1], [0.95])
-quant_l = np.quantile(res[:, 1], [0.05])
+quant_u = np.quantile(res[:, 1], [0.975])
+quant_l = np.quantile(res[:, 1], [0.025])
 print(str(quant_u))
 print(str(quant_l))
 
