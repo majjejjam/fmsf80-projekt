@@ -73,8 +73,8 @@ print('Med sigma ' + format(s, '.3f'))
 sns.scatterplot(Pb_S, x='Year1975', y='Pb')
 plt.axline((0, alpha), slope=beta, color='r')
 plt.title('Regressionslinje anpassad till data')
-plt.ylabel('Absorption')
-plt.xlabel('Kopparkoncentration')
+plt.xlabel('År efter 1975')
+plt.ylabel('Blyhalt (mg/g)')
 plt.show()
 
 # %% Intervall för alpha, beta
@@ -156,8 +156,8 @@ plt.plot([x0, x0], [-0.11, I_y0[1]], color='grey')
 
 plt.title('Konfidensintervall för mu(' + format(x0, '.2f') +
           ') och prediktionsintervall')
-plt.ylabel('Absorption')
-plt.xlabel('Kopparkoncentration')
+plt.xlabel('År efter 1975')
+plt.ylabel('Blyhalt (mg/g)')
 plt.show()
 
 # %% kalibrationintervalls
@@ -185,8 +185,8 @@ plt.plot(I_x0[[1, 1]], [-0.11, y0], color='grey')
 plt.plot([x0_star, x0_star], [-0.11, y0], color='grey')
 
 plt.title('Kalibreringsintervall för y_0=' + format(y0, '.2f'))
-plt.ylabel('Absorption')
-plt.xlabel('Kopparkoncentration')
+plt.xlabel('År efter 1975')
+plt.ylabel('Blyhalt (mg/g)')
 plt.show()
 
 print("Konfidensintervall för blyhalt 2025: ", I_mu0)
