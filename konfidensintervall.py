@@ -12,6 +12,8 @@ import scipy.stats as stats
 import statsmodels.formula.api as smf
 import matplotlib.pyplot as plt
 import seaborn as sns
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # %% Data
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
