@@ -2,6 +2,10 @@
 """
 Enkel linjär regression för avtagande blyhalt över tid.
 
+Se video nedan för mer information
+
+https://canvas.education.lu.se/courses/24433/pages/video-14-dot-2-exempel-cu-koncentration
+
 @author: Johan and Miró
 """
 
