@@ -221,6 +221,8 @@ C_l, k1_l, k2_l = np.exp(intervals[0]['Intercept']), intervals[0]['Year1975'], i
 def exp(C,k1,k2,t):
     return C*np.exp(t*k1)*np.exp(k2)
 
+t = np.linspace(0, 40, 200)
+
 #Södermanland undre och övre intervall
 y_exp_S_undre=exp(C_l,k1_l,k2_l,t)
 y_exp_S = exp(C,k1,k2,t)
@@ -389,7 +391,7 @@ y_exp_B_övre=exp(C_h,k1_h,0,t)
 
 ##Grafer med både undre och övre konfidensinvervall för respektive län
 sns.set(style="whitegrid")
-fig,axs=plt.subplots(2, 1, constrained_layout=True)
+fig,axes=plt.subplots(2, 1, constrained_layout=True)
 
 #Våra tre respektive modeller för Södermanland
 sns.lineplot(x=t, y=y_exp_S, color='blue',
