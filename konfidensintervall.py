@@ -26,6 +26,9 @@ Pb.Lan = Pb.Lan.astype('category')
 # Vi skapar en kolumn med gått tid från 1975
 Pb['Year1975'] = Pb.Year - 1975
 
+# Tag bort år 1995 och 2000
+Pb = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
+
 # Vi delar upp datan per län
 Pb_B = Pb.query("Lan=='Blekinge län'")
 Pb_S = Pb.query("Lan=='Södermanlands län'")
