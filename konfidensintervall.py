@@ -180,4 +180,4 @@ plt.xlabel('Kopparkoncentration')
 plt.show()
 
 print("Konfidensintervall för blyhalt 2025: ", I_mu0)
-print("Konfidensintervall för årtal då blyhalt understiger 10 mg: ", I_x0 + 1975)
+print("Kalibreringsintervall för årtal då blyhalt understiger 10 mg: ", I_x0 + 1975)
