@@ -136,24 +136,76 @@ print('PREDIKTION 2025'+'[Mitten,Undre,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
 print('Södermanland:'+str(Pred_S_2025) )
 
-#%%Prediktion när under 10mg/g mossa (Sörmland) (Gaussapproximation)
-y_0=10
-y_mean = np.mean(Pb_S['Pb'].values)
-n=len(Pb_S['Pb'])
-t=stats.t.ppf(0.975,n-2)
+#%%Nytt försök Prediktion 10mg/g (Sörmland)
+cov=res_mult_log.cov_params()
+cov_matrix=[[cov['Intercept'][0],cov['Year1975'][0]],[cov['Intercept'][1],cov['Year1975'][1]]]
+print (str(cov))
+print(str(cov_matrix))
 
+x0_S=(np.log(10)-np.log(C)-k2*1)/k1
+x0_B=(np.log(10)-np.log(C)-k2*0)/k1
+vv=[np.log(10),x0_S]
+
+res=stats.multivariate_normal.rvs(mean=vv,cov=cov_matrix,size=1000)
+#year_quantiles = np.percentile(res[1], [2.5, 97.5])
+#print(str(year_quantiles))
+print(str(res))
+quant_u = np.quantile(res[:, 1], [0.95])
+quant_l = np.quantile(res[:, 1], [0.05])
+print(str(quant_u))
+print(str(quant_l))
+
+
+
+#%%Prediktion när under 10mg/g mossa (Sörmland) (Gaussapproximation)
+
+y_0=10
+y_mean = np.mean(np.log(Pb_S['Pb'].values))
+
+t=stats.t.ppf(0.975,n-2)
 
 x_0_approx=(np.log(y_0)-np.log(C)-k2*1)/k1
 cov=res_mult_log.cov_params()
 s=np.sqrt((cov['Year1975'][1]))
-x_mean=np.mean(Pb_S['Year1975'])
-s_xx=sum((x-x_mean)**2 for x in Pb_S['Year1975'].values)
-width_interval=t*(s/np.abs(k1))*np.sqrt(1+1/n+((y_0-y_mean)**2)/((k1**2)*s_xx))
+print(str(s))
+x_years1975=[0,5,10,15,20,25,30,35,40]
+n=len(Pb_S['Pb'].values)
+x_mean=(np.mean(Pb_S['Year1975']))
+s_yy=sum((y-y_mean)**2 for y in np.log(Pb_S['Pb'].values))
+s_xy = sum((x - x_mean) * (y - y_mean) for x, y in zip(Pb_S['Year1975'], np.log(Pb_S['Pb'].values)))
+s_xx=sum((x-x_mean)**2 for x in Pb_S['Year1975'])
+#s=np.sqrt((s_yy-(s_xy**2)/s_xx)/(n-2))
+print(str(s))
+n=len(x_years1975)
+
+width_interval=t*(s/np.abs(k1))*np.sqrt(1+1/n+(x_0_approx-x_mean)**2)/((s_xx))
+print(str(width_interval))
 x_0_final=1975+x_0_approx
+
 pred=[x_0_final+width_interval,x_0_final,x_0_final-width_interval]
 print('Prediktion när mg/g mossa är under 10')
 print('[över, medel, under]')
 print("Södermanland: "+str(pred))
+#%% Prediktion 10mg (Blekinge)
+y_0=10
+y_mean = np.mean(np.log(Pb_B['Pb'].values))
+n=len(Pb_B['Pb'])
+t=stats.t.ppf(0.975,n-2)
+
+x_0_approx=(np.log(y_0)-np.log(C))/k1
+cov=res_mult_log.cov_params()
+s=np.sqrt((cov['Year1975'][1]))
+x_mean=np.mean(Pb_B['Year1975'])
+s_xx=sum((x-x_mean)**2 for x in Pb_B['Year1975'].values)
+s_xx=1
+
+width_interval=t*(s/np.abs(k1))*np.sqrt(1+1/n+((np.log(y_0)-y_mean)**2)/((k1**2)*s_xx))
+x_0_final=1975+x_0_approx
+
+pred=[x_0_final+width_interval,x_0_final,x_0_final-width_interval]
+print('Prediktion när mg/g mossa är under 10')
+print('[över, medel, under]')
+print("Blekinge: "+str(pred))
 #%% Prediktion plottad
 #Våra konfidensintervall för vår multipel regression modell 
 intervals=res_mult_log.conf_int()
