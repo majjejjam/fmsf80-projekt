@@ -72,6 +72,27 @@ print('Skattning av linjen y = ' + format(Beta[0], '.4f') + ' + ' +
       format(Beta[1], '.4f') + 'x')
 print('Med sigma ' + format(s, '.3f'))
 
+
+# Exponentiell
+reg_exp = smf.ols(formula='np.log(Pb) ~ Year1975', data=Pb_S).fit()
+
+# Våra parametrar för den exponentiella modellen
+C, k = np.exp(reg_exp.params.Intercept), reg_exp.params.Year1975
+
+# Vår linjära modells residualer
+t = np.linspace(-5, 45, 200)
+
+# Estimerade värden från vår exponentiella modell
+y = C*np.exp(k*t)
+
+# Residualer
+epsilon_exp = []
+for n in Pb_S['Pb'].values:
+    epsilon_exp.append(np.abs(C*np.exp(k*n) - n))
+
+print('Skattning av kurvan y = ' + format(C, '.4f') + ' + e^(' +
+      format(k, '.4f') + 'x)')
+
 # %% plot data och linjen
 sns.scatterplot(Pb_S, x='Year1975', y='Pb')
 plt.axline((0, alpha), slope=beta, color='r')
@@ -137,6 +158,8 @@ I_y0 = X0@Beta + t_alpha_pm * s * np.sqrt(1 + X0 @ np.linalg.solve(X.T@X, X0))
 # kvantiler har beräknats ovan
 # create a vector of values
 t = np.linspace(-25, 225, 10**3)
+y = C*np.exp(k*t)  # y behöver räknas om för det nya t:t
+
 # and a matrix
 T = np.column_stack((np.ones(t.shape[0]), t))
 # predictions and variances
