@@ -144,9 +144,6 @@ print('PREDIKTION 2025'+'[Mitten,Undre,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
 print('Södermanland:'+str(Pred_S_2025) )
 
-pred_data = [Pred_S_2025,Pred_B_2025]
-columns = ['Mitten','Undre','Övre']
-
 #%%Nytt försök Prediktion 10mg/g (Sörmland & Blekinge)
 def pred_10mg(reg_mult,beta,y0):
     cov=reg_mult.cov_params()
@@ -301,6 +298,8 @@ print('Blekinge: '+str(pred_exp_B_övre)+', '+str(pred_exp_B)+', '+str(pred_exp_
 print('Södermanland: '+str(pred_exp_S_övre)+', '+str(pred_exp_S)+', '+str(pred_exp_S_undre))
 
 #En tabell med våra resultat
+pred_data = [Pred_S_2025,Pred_B_2025]
+columns = ['Mitten','Undre','Övre']
 pred_data_2 = [[pred_exp_S_undre,pred_exp_S,pred_exp_S_övre],
         [pred_exp_B_undre,pred_exp_B,pred_exp_B_övre]]
 
