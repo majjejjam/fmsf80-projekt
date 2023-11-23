@@ -27,7 +27,7 @@ Pb.Lan = Pb.Lan.astype('category')
 Pb['Year1975'] = Pb.Year - 1975
 
 # Tag bort år 1995 och 2000
-Pb = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
+# Pb = Pb[(Pb['Year1975'] != 20) & (Pb['Year1975'] != 25)]
 
 # Vi delar upp datan per län
 Pb_B = Pb.query("Lan=='Blekinge län'")
@@ -72,10 +72,33 @@ print('Skattning av linjen y = ' + format(Beta[0], '.4f') + ' + ' +
       format(Beta[1], '.4f') + 'x')
 print('Med sigma ' + format(s, '.3f'))
 
+
+# Exponentiell
+reg_exp = smf.ols(formula='np.log(Pb) ~ Year1975', data=Pb_S).fit()
+
+# Våra parametrar för den exponentiella modellen
+C, k = np.exp(reg_exp.params.Intercept), reg_exp.params.Year1975
+
+# Vår linjära modells residualer
+t = np.linspace(-5, 45, 200)
+
+# Estimerade värden från vår exponentiella modell
+y = C*np.exp(k*t)
+
+# Residualer
+epsilon_exp = []
+for n in Pb_S['Pb'].values:
+    epsilon_exp.append(np.abs(C*np.exp(k*n) - n))
+
+print('Skattning av kurvan y = ' + format(C, '.4f') + ' + e^(' +
+      format(k, '.4f') + 'x)')
+
 # %% plot data och linjen
-sns.scatterplot(Pb_S, x='Year1975', y='Pb')
-plt.axline((0, alpha), slope=beta, color='r')
+sns.scatterplot(Pb_S, x='Year1975', y='Pb', color='k')
+plt.axline((0, alpha), slope=beta, color='r', linewidth=2)
+plt.plot(t, y, color='b', linewidth=2)
 plt.title('Regressionslinje anpassad till data')
+plt.xlim(t.min(), t.max())
 plt.xlabel('År efter 1975')
 plt.ylabel('Blyhalt (mg/g)')
 plt.show()
@@ -137,28 +160,35 @@ I_y0 = X0@Beta + t_alpha_pm * s * np.sqrt(1 + X0 @ np.linalg.solve(X.T@X, X0))
 # kvantiler har beräknats ovan
 # create a vector of values
 t = np.linspace(-25, 225, 10**3)
+y = C*np.exp(k*t)  # y behöver räknas om för det nya t:t
+
 # and a matrix
 T = np.column_stack((np.ones(t.shape[0]), t))
 # predictions and variances
 mu = T@Beta
 V = np.sum((T @ np.linalg.inv(X.T@X)) * T, axis=1)
 
+
+
 # plot data
+plt.fill_between(t, mu+t_alpha*s*np.sqrt(V+1), mu-t_alpha *
+                 s*np.sqrt(V+1), color='lightgrey')
+plt.fill_between(t, mu+t_alpha*s*np.sqrt(V), mu-t_alpha *
+                 s*np.sqrt(V), color='darkgrey')
 sns.scatterplot(Pb_S, x='Year1975', y='Pb', color='k')
-plt.plot(t, mu, color='b')
-plt.plot(t, mu+t_alpha*s*np.sqrt(V), color='g')
-plt.plot(t, mu-t_alpha*s*np.sqrt(V), color='g')
-plt.plot(t, mu+t_alpha*s*np.sqrt(V+1), color='r')
-plt.plot(t, mu-t_alpha*s*np.sqrt(V+1), color='r')
+plt.plot(t, y, color='b', linewidth=2)
+plt.plot(t, mu, color='r', linewidth=2)
 
 plt.plot([-25, x0], I_mu0[[0, 0]], color='grey')
 plt.plot([-25, x0], I_mu0[[1, 1]], color='grey')
 plt.plot([-25, x0], I_y0[[0, 0]], color='grey')
 plt.plot([-25, x0], I_y0[[1, 1]], color='grey')
-plt.plot([x0, x0], [-0.11, I_y0[1]], color='grey')
+plt.plot([x0, x0], [-100, I_y0[1]], color='grey')
 
 plt.title('Konfidensintervall för mu(' + format(x0, '.2f') +
           ') och prediktionsintervall')
+plt.xlim(t.min(), 100)
+plt.ylim(Pb_S['Pb'].min() - 100, Pb_S['Pb'].max() + 20)
 plt.xlabel('År efter 1975')
 plt.ylabel('Blyhalt (mg/g)')
 plt.show()
@@ -175,24 +205,29 @@ I_x0 = x0_star + t_alpha_pm * D_x0
 # mu och V har beräknats ovan för konfidens intervallet
 
 # plot data
+plt.fill_between(t, mu+t_alpha*s*np.sqrt(V+1), mu-t_alpha *
+                 s*np.sqrt(V+1), color='lightgrey')
+plt.fill_between(t, mu+t_alpha*s*np.sqrt(V), mu-t_alpha *
+                 s*np.sqrt(V), color='darkgrey')
 sns.scatterplot(Pb_S, x='Year1975', y='Pb', color='k')
-plt.plot(t, mu, color='b')
-plt.plot(t, mu+t_alpha*s*np.sqrt(V), color='g')
-plt.plot(t, mu-t_alpha*s*np.sqrt(V), color='g')
-plt.plot(t, mu+t_alpha*s*np.sqrt(V+1), color='r')
-plt.plot(t, mu-t_alpha*s*np.sqrt(V+1), color='r')
+plt.plot(t, y, color='b', linewidth=2)
+plt.plot(t, mu, color='r', linewidth=2)
 
 plt.plot([-25, I_x0[1]], [y0, y0], color='grey')
 plt.plot(I_x0[[0, 0]], [-0.11, y0], color='grey')
 plt.plot(I_x0[[1, 1]], [-0.11, y0], color='grey')
 plt.plot([x0_star, x0_star], [-0.11, y0], color='grey')
 
-plt.title('Kalibreringsintervall för y_0=' + format(y0, '.2f'))
+plt.title('Kalibreringsintervall för ' + r'$y_0=$' + format(y0, '.2f'))
+plt.xlim(t.min(), 100)
+plt.ylim(Pb_S['Pb'].min() - 50, Pb_S['Pb'].max() + 20)
 plt.xlabel('År efter 1975')
 plt.ylabel('Blyhalt (mg/g)')
 plt.show()
 
+print("\n===LINJÄR===")
 print("Konfidensintervall för blyhalt 2025: ", I_mu0)
 print("Prediktionsintervall för blyhalt 2025: ", I_y0)
 print("Kalibreringsintervall för årtal då blyhalt understiger 10 mg: ",
       I_x0 + 1975)
+print("\n===EXPONENTIELL===")
