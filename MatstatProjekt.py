@@ -89,22 +89,24 @@ sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
 plt.show()
 
+
 #%% Multipel Regression Exponentiell 
 Pb['Lan_I'] = [0 if Lan == 'Blekinge län' else 1 for Lan in Pb['Lan'].values]
-
+Pb['log_Pb']=np.log(Pb['Pb'])
 #Regression på våra logaritmerade blyhalter som en funktion av tid och län 
-res_mult_log = smf.ols(formula='np.log(Pb)~Year1975+Lan_I',data=Pb).fit()
+res_mult_log = smf.ols(formula='log_Pb~Lan_I + Year1975 + Lan_I:Year1975',data=Pb).fit()
 print(res_mult_log.summary())
 
-#Våra parametrar från vår multipel regression
-C, k1, k2 = np.exp(res_mult_log.params[0]), res_mult_log.params[1], res_mult_log.params[2]
+#Våra parametrar från vår multipel regression beta_0,,,beta_4=beta[0]...beta[4]
+beta_exp = [res_mult_log.params['Intercept'], res_mult_log.params['Lan_I'], res_mult_log.params['Year1975'], res_mult_log.params['Lan_I:Year1975']]
 
 #Våra tidsvärden mellan 1975 och 2015
 t = np.linspace(0, 40, 200)
 
 #Värdena på våra exponentiella funktioner för respektive län
-y_exp_S = C*np.exp(t*k1)*np.exp(k2)
-y_exp_B = C*np.exp(t*k1)
+y_exp_S = np.exp(beta_exp[0]+beta_exp[1])*np.exp(t*(beta_exp[2]+beta_exp[3]))
+y_exp_B = np.exp(beta_exp[0])*np.exp(t*beta_exp[2])
+
 
 #plt.scatter(Pb_S['Year1975'].values, Pb_S['Pb'].values, c='blue')
 #plt.scatter(Pb_B['Year1975'].values, Pb_B['Pb'].values, c='red')
@@ -127,9 +129,12 @@ plt.title("Exponentiella modeller")
 #Sparar och visar grafen med våra exponentiella modeller
 plt.savefig('Grafer/ExpModeller.png')
 plt.show()
+
 #%% Lineär modell Multipel regression
-#res_mult_lin = smf.ols(formula='Pb ~ C(Lan) + Year1975 + C(Lan):Year1975', data=Pb).fit()
-#%% Prediktion 2025
+res_mult_lin = smf.ols(formula='Pb ~ Lan_I + Year1975 + Lan_I:Year1975', data=Pb).fit()
+print(res_mult_lin.summary())
+beta_lin=[res_mult_lin.params['Intercept'], res_mult_lin.params['Lan_I'], res_mult_lin.params['Year1975'], res_mult_lin.params['Lan_I:Year1975']]
+#%% Prediktion 2025 exp
 Pb_0=pd.DataFrame({'Year1975' : [50, 50],'Lan_I' : [0, 1]})
 Pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)
 
@@ -142,27 +147,34 @@ print('Södermanland:'+str(Pred_S_2025) )
 pred_data = [Pred_S_2025,Pred_B_2025]
 columns = ['Mitten','Undre','Övre']
 
-#%%Nytt försök Prediktion 10mg/g (Sörmland)
-cov=res_mult_log.cov_params()
-cov_matrix=[[cov['Intercept'][0],cov['Year1975'][0]],[cov['Intercept'][1],cov['Year1975'][1]]]
+#%%Nytt försök Prediktion 10mg/g (Sörmland & Blekinge)
+def pred_10mg(reg_mult,beta,y0):
+    cov=reg_mult.cov_params()
 
-print (str(cov))
-print(str(cov_matrix))
+    x0_S=(y0-beta[0]-beta[1])/(beta[2]+beta[3])+1975
+    x0_B=(y0-beta[0])/(beta[2])+1975
+    sim=stats.multivariate_normal.rvs(mean=beta,cov=cov,size=10000)
+    params = []
+    for x in range(4):
+    # Adjusted quantile values to get the 2.5th and 97.5th percentiles
+        param = np.quantile(sim[:, x], [0.025, 0.975])
+        params.append(param)
+    print(str(params))
+ #anv inte param[3] för den ger orimliga intervall. Är ändå insignifikant
+# Adjusted indices when calculating upper and lower bounds
+    x0_S_Ö = (y0 - params[0][1] - params[1][1]) / (params[2][1]) + 1975
+    x0_S_U = (y0 - params[0][0] - params[1][0]) / (params[2][0]) + 1975
+
+    x0_B_Ö = (y0 - params[0][1]) / (params[2][1]) + 1975
+    x0_B_U = (y0 - params[0][0]) / (params[2][0]) + 1975
+
+    print("PREDICTION year for 10mg [Undre, Mean, Övre]")
+    print('Blekinge:', str(x0_B_U) + ', ' + str(x0_B) + ', ' + str(x0_B_Ö))
+    print('Södermanland:', str(x0_S_U) + ', ' + str(x0_S) + ', ' + str(x0_S_Ö))
 
 
-x0_S=(np.log(10)-np.log(C)-k2*1)/k1
-x0_B=(np.log(10)-np.log(C)-k2*0)/k1
-vv=[np.log(10),x0_S,k2]
-
-res=stats.multivariate_normal.rvs(mean=vv,cov=cov,size=1000)
-year_quantiles = np.percentile(res[:,1], [2.5, 97.5])
-print(str(year_quantiles))
-print(str(res))
-quant_u = np.quantile(res[:, 1], [0.975])
-quant_l = np.quantile(res[:, 1], [0.025])
-print(str(quant_u))
-print(str(quant_l))
-
+pred_10mg(res_mult_log,beta_exp,np.log(10))
+pred_10mg(res_mult_lin,beta_lin,10)
 
 
 #%%Prediktion när under 10mg/g mossa (Sörmland) (Gaussapproximation)
