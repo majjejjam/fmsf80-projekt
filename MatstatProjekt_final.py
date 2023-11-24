@@ -216,6 +216,16 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     #Justerar och sparar grafen
     horisont = str(u_gräns)+"-"+str(ö_gräns)
 
+    axs[0].set_xlim(t.min(), t.max())
+    axs[1].set_xlim(t.min(), t.max())
+
+    if u_gräns >= 50:
+        axs[0].set_yticks(np.arange(0, 70, step=10))
+        axs[1].set_yticks(np.arange(0, 70, step=10))
+
+        axs[0].axline((0, 10), slope=0, linestyle="--", color='k', linewidth=1)
+        axs[1].axline((0, 10), slope=0, linestyle="--", color='k', linewidth=1)
+
     plt.tight_layout()
     plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.png')
     plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.pgf')
