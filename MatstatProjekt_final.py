@@ -15,6 +15,8 @@ mpl.rcParams['figure.figsize'] = (4.0, 4.0)
 mpl.rcParams['figure.autolayout'] = True
 mpl.rcParams['font.size'] = 11
 mpl.rcParams['font.family'] = 'serif'
+mpl.rcParams['axes.spines.top'] = False
+mpl.rcParams['axes.spines.right'] = False
 
 #Vår data av blyhalter
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
@@ -36,8 +38,6 @@ sns.scatterplot(Pb, x='Year1975', y='Pb', hue='Lan', legend=False)
 # Justera axlarna
 plt.yticks([Pb['Pb'].min()] + list(range(25, 176, 25)))
 ax = plt.gca()
-ax.spines['right'].set_color('none')
-ax.spines['top'].set_color('none')
 ax.spines['left'].set_bounds(Pb['Pb'].min(), 175)
 ax.spines['bottom'].set_bounds(Pb['Year1975'].min(), Pb['Year1975'].max())
 # Lite andrum
