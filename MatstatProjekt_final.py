@@ -243,15 +243,17 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     axs[1].set_xlim(t.min(), t.max())
 
     if u_gräns >= 50:
-        axs[0].scatter(x=x0_S-1975, y=10, color='k')
-        axs[0].annotate("({:.0f}, {})".format(np.round(x0_S-1975), 10),
-                     xy=(x0_S-1975, 10), xycoords='data',
+        axs[0].fill_between(t, 10, y_exp_S_u[u_gräns:ö_gräns], color='b', alpha=0.3)
+        axs[1].fill_between(t[t>x0_B_u-1975], 10, y_exp_B_u[int(np.round(x0_B_u-1975)):ö_gräns], color='r', alpha=0.3)
+        axs[0].scatter(x=x0_S-1975, y=10, color='k', marker='|', zorder=2)
+        axs[0].annotate("{:.0f} år".format(np.round(x0_S-1975)),
+                     xy=(x0_S-1975, 10),
                      xytext=(+10, +30), textcoords='offset points', fontsize=12,
                      arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
-        axs[1].scatter(x=x0_B-1975, y=10, color='k')
-        axs[1].annotate("({:.0f}, {})".format(np.round(x0_B-1975), 10),
-                     xy=(x0_B-1975, 10), xycoords='data',
+        axs[1].scatter(x=x0_B-1975, y=10, color='k', marker='|', zorder=2)
+        axs[1].annotate("{:.0f} år".format(np.round(x0_B-1975)),
+                     xy=(x0_B-1975, 10),
                      xytext=(+10, +30), textcoords='offset points', fontsize=12,
                      arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
