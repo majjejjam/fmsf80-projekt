@@ -168,6 +168,11 @@ print('Södermanland:'+ str(pred_S_10mg))
 
 #%% Prediktion plottad
 t= np.linspace(0, 200, 200)
+
+#Värdena på våra exponentiella funktioner för respektive län
+y_exp_S = np.exp(beta0+beta1)*np.exp(t*(beta2))
+y_exp_B = np.exp(beta0)*np.exp(t*beta2)
+
 #Södermanland undre och övre intervall
 y_exp_S_u=np.exp(beta_u[0]+beta_u[1])*np.exp(t*(beta_u[2]))
 y_exp_S_ö=np.exp(beta_ö[0]+beta_ö[1])*np.exp(t*(beta_ö[2]))
