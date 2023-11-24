@@ -181,40 +181,48 @@ y_exp_B_u=np.exp(beta_u[0])*np.exp(t*beta_u[2])
 y_exp_B_ö=np.exp(beta_ö[0])*np.exp(t*beta_ö[2])
 
 ##Grafer med både undre och övre konfidensinvervall för respektive län
-sns.set(style="whitegrid")
-fig,axs=plt.subplots(2, 1, constrained_layout=True)
+def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
+    t = t[u_gräns:ö_gräns]
+    sns.set(style="whitegrid")
+    fig,axs=plt.subplots(2, 1, constrained_layout=True)
 
-#Våra tre respektive modeller för Södermanland
-sns.lineplot(x=t, y=y_exp_S, color='blue',
-                label='Södermanland', ax=axs[0])
-sns.lineplot(x=t, y=y_exp_S_u, color='lightblue',
-                label='Södermanland undre', ax=axs[0])
-sns.lineplot(x=t, y=y_exp_S_ö, color='darkblue',
-                label='Södermanland övre', ax=axs[0])
+    #Våra tre respektive modeller för Södermanland
+    sns.lineplot(x=t, y=y_exp_S[u_gräns:ö_gräns], color='blue',
+                    label='Södermanland', ax=axs[0])
+    sns.lineplot(x=t, y=y_exp_S_u[u_gräns:ö_gräns], color='lightblue',
+                    label='Södermanland undre', ax=axs[0])
+    sns.lineplot(x=t, y=y_exp_S_ö[u_gräns:ö_gräns], color='darkblue',
+                    label='Södermanland övre', ax=axs[0])
 
-#Namnger våra axlar korrekt
-axs[0].set_xlabel("Tid (år)")
-axs[0].set_ylabel("Bly (mg/kg mossa)")
-axs[0].legend()
-axs[0].set_title("Södermanland")
+    #Namnger våra axlar korrekt
+    axs[0].set_xlabel("Tid (år)")
+    axs[0].set_ylabel("Bly (mg/kg mossa)")
+    axs[0].legend()
+    axs[0].set_title("Södermanland")
 
-#Våra tre respektive modeller för Blekinge
-sns.lineplot(x=t, y=y_exp_B, color='red', label='Blekinge', ax=axs[1])
-sns.lineplot(x=t, y=y_exp_B_u, color='lightcoral',
-                label='Blekinge undre', ax=axs[1])
-sns.lineplot(x=t, y=y_exp_B_ö, color='darkred',
-                label='Blekinge övre', ax=axs[1])
+    #Våra tre respektive modeller för Blekinge
+    sns.lineplot(x=t, y=y_exp_B[u_gräns:ö_gräns], color='red', label='Blekinge', ax=axs[1])
+    sns.lineplot(x=t, y=y_exp_B_u[u_gräns:ö_gräns], color='lightcoral',
+                    label='Blekinge undre', ax=axs[1])
+    sns.lineplot(x=t, y=y_exp_B_ö[u_gräns:ö_gräns], color='darkred',
+                    label='Blekinge övre', ax=axs[1])
 
-#Namnger våra axlar korrekt
-axs[1].set_xlabel("Tid (år)")
-axs[1].set_ylabel("Bly (mg/kg mossa)")
-axs[1].legend()
-axs[1].set_title("Blekinge")
+    #Namnger våra axlar korrekt
+    axs[1].set_xlabel("Tid (år)")
+    axs[1].set_ylabel("Bly (mg/kg mossa)")
+    axs[1].legend()
+    axs[1].set_title("Blekinge")
 
-#Justerar och sparar grafen
-plt.tight_layout()
-plt.savefig('Grafer/ExpModellerIntervall.png')
-plt.show()
+    #Justerar och sparar grafen
+    horisont = str(u_gräns)+"-"+str(ö_gräns)
+
+    plt.tight_layout()
+    plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.png')
+    plt.show()
+
+plot_exponential(t)
+plot_exponential(t,0,41)
+plot_exponential(t,50,121)
 
 #%%En tabell med våra resultat
 pred_data = [Pred_S_2025,Pred_B_2025]
