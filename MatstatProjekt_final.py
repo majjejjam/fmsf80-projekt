@@ -11,7 +11,8 @@ import statsmodels.formula.api as smf
 
 # Globalt mpl-utseende
 mpl.rcParams['lines.linewidth'] = 2
-mpl.rcParams['figure.figsize'] = (4.0, 4.0)     # set figure size
+mpl.rcParams['figure.figsize'] = (4.0, 4.0)
+mpl.rcParams['figure.autolayout'] = True
 mpl.rcParams['font.size'] = 11
 mpl.rcParams['font.family'] = 'serif'
 
@@ -241,7 +242,6 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
                      xytext=(+10, +30), textcoords='offset points', fontsize=12,
                      arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
-    plt.tight_layout()
     plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.png')
     plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.pgf')
     plt.show()
