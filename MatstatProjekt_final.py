@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Globalt mpl-utseende
 mpl.rcParams['lines.linewidth'] = 2
