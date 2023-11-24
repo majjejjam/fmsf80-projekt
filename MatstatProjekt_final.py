@@ -31,11 +31,10 @@ T = Pb_S['Year1975'].values
 Y = Pb_S['Pb'].values
 
 # Plotta datan
-sns.scatterplot(Pb, x='Year1975', y='Pb', hue='Lan')
+sns.scatterplot(Pb, x='Year1975', y='Pb', hue='Lan', legend=False)
 plt.title("Blyhalt över tid")
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
-plt.legend(title='Län')
 plt.savefig('Grafer/DataFörBådaLänen.png')
 plt.savefig('Grafer/DataFörBådaLänen.pgf')
 plt.show()
