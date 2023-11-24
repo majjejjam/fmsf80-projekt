@@ -45,6 +45,7 @@ plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland linjär')
 plt.savefig('Grafer/SödermanlandLinjär.png')
+plt.savefig('Grafer/SödermanlandLinjär.pgf')
 plt.show()
 
 #%% Enkel regression differential model Södermanland
@@ -74,6 +75,7 @@ plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.title('Södermanland exponentiell')
 plt.savefig('Grafer/SödermanlandExponentiell.png')
+plt.savefig('Grafer/SödermanlandExponentiell.pgf')
 plt.show()
 
 #%%Jämförelse mellan linjär och exponentiell modell
@@ -85,11 +87,12 @@ axs[1].set_title('Exponentiell')
 sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
+plt.savefig('Grafer/Histogram.pgf')
 plt.show()
 
-#%% Multipel Regression Exponentiell 
+#%% Multipel Regression Exponentiell
 Pb['Lan_I'] = [0 if Lan == 'Blekinge län' else 1 for Lan in Pb['Lan'].values]
-#Regression på våra logaritmerade blyhalter som en funktion av tid och län 
+#Regression på våra logaritmerade blyhalter som en funktion av tid och län
 res_mult_log = smf.ols(formula='np.log(Pb)~Lan_I + Year1975 + Lan_I:Year1975',data=Pb).fit()
 print(res_mult_log.summary())
 
@@ -119,6 +122,7 @@ plt.title("Exponentiella modeller")
 
 #Sparar och visar grafen med våra exponentiella modeller
 plt.savefig('Grafer/ExpModeller.png')
+plt.savefig('Grafer/ExpModeller.pgf')
 plt.show()
 
 #%% Prediktion 2025 exp
@@ -208,6 +212,7 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
 
     plt.tight_layout()
     plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.png')
+    plt.savefig('Grafer/ExpModellerIntervall'+horisont+'.pgf')
     plt.show()
 
 plot_exponential(t)
