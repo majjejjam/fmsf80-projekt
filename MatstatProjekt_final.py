@@ -3,10 +3,13 @@ import numpy as np
 import scipy.stats as stats
 import statistics
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+
+mpl.rcParams['lines.linewidth'] = 2
 
 #Vår data av blyhalter
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
@@ -36,7 +39,6 @@ epsilon_lin=reg_lin.resid
 
 #Vi visar våra resulat från den linjära modellen
 #plt.scatter(T, Y)
-sns.set(style="whitegrid")
 sns.scatterplot(x=T, y = Y)
 
 #Vår linjära ekvation med våra estimerade parametrar
