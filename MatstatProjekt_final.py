@@ -68,7 +68,6 @@ for n in Y:
 
 #Vi plottar jämförelsen mellan våra mätvärden och estimerade värden från den exponentiella modellen
 #plt.scatter(T, np.exp(Y_log))
-sns.set(style="whitegrid")
 sns.scatterplot(x= T, y =Y)
 plt.plot(t, y)
 plt.xlabel("Tid (år)")
@@ -105,7 +104,6 @@ y_exp_S = np.exp(beta0+beta1)*np.exp(t*(beta2))
 y_exp_B = np.exp(beta0)*np.exp(t*beta2)
 
 #Scatterplots med våra exponentiella modeller för respektive län
-sns.set(style="whitegrid")
 sns.scatterplot(x=Pb_S['Year1975'].values, y=Pb_S['Pb'].values, c='blue', label = "Södermanland - Mätvärden")
 sns.scatterplot(x=Pb_B['Year1975'].values, y=Pb_B['Pb'].values, c='red', label = "Blekinge - Mätvärden")
 
@@ -183,7 +181,6 @@ y_exp_B_ö=np.exp(beta_ö[0])*np.exp(t*beta_ö[2])
 ##Grafer med både undre och övre konfidensinvervall för respektive län
 def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     t = t[u_gräns:ö_gräns]
-    sns.set(style="whitegrid")
     fig,axs=plt.subplots(2, 1, constrained_layout=True)
 
     #Våra tre respektive modeller för Södermanland
