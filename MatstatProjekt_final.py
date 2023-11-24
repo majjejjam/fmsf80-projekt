@@ -9,7 +9,11 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+# Globalt mpl-utseende
 mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['figure.figsize'] = (4.0, 4.0)     # set figure size
+mpl.rcParams['font.size'] = 11
+mpl.rcParams['font.family'] = 'serif'
 
 #Vår data av blyhalter
 Pb = pd.read_csv("Pb.csv", encoding='utf-8')
