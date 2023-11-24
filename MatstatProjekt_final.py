@@ -33,6 +33,17 @@ Y = Pb_S['Pb'].values
 
 # Plotta datan
 sns.scatterplot(Pb, x='Year1975', y='Pb', hue='Lan', legend=False)
+# Justera axlarna
+plt.yticks([Pb['Pb'].min()] + list(range(25, 176, 25)))
+ax = plt.gca()
+ax.spines['right'].set_color('none')
+ax.spines['top'].set_color('none')
+ax.spines['left'].set_bounds(Pb['Pb'].min(), 175)
+ax.spines['bottom'].set_bounds(Pb['Year1975'].min(), Pb['Year1975'].max())
+# Lite andrum
+ax.set_xlim([-4, ax.get_xlim()[1]])
+ax.set_ylim([-4, ax.get_ylim()[1]])
+# Etiketter
 plt.title("Blyhalt över tid")
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
