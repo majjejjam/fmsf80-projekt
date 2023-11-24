@@ -224,7 +224,7 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     #Namnger våra axlar korrekt
     axs[0].set_xlabel("Tid (år)")
     axs[0].set_ylabel("Bly (mg/kg mossa)")
-    axs[0].set_title("Södermanland")
+    axs[0].set_title("Södermanland    ", loc='right', pad=-14)
 
     #Våra tre respektive modeller för Blekinge
     sns.lineplot(x=t, y=y_exp_B[u_gräns:ö_gräns], color='red', ax=axs[1])
@@ -234,7 +234,7 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     #Namnger våra axlar korrekt
     axs[1].set_xlabel("Tid (år)")
     axs[1].set_ylabel("Bly (mg/kg mossa)")
-    axs[1].set_title("Blekinge")
+    axs[1].set_title("Blekinge    ", loc='right', pad=-24)
 
     #Justerar och sparar grafen
     horisont = str(u_gräns)+"-"+str(ö_gräns)
