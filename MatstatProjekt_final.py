@@ -30,6 +30,16 @@ Pb_S = Pb.query("Lan=='Södermanlands län'")
 T = Pb_S['Year1975'].values
 Y = Pb_S['Pb'].values
 
+# Plotta datan
+sns.scatterplot(Pb, x='Year1975', y='Pb', hue='Lan')
+plt.title("Blyhalt över tid")
+plt.xlabel("Tid (år)")
+plt.ylabel("Bly (mg/kg mossa)")
+plt.legend(title='Län')
+plt.savefig('Grafer/DataFörBådaLänen.png')
+plt.savefig('Grafer/DataFörBådaLänen.pgf')
+plt.show()
+
 #%% Enkel regression, Linjär modell Södermanland
 
 reg_lin=smf.ols(formula='Pb~Year1975',data=Pb_S).fit()
