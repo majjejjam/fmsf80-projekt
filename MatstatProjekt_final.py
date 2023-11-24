@@ -184,30 +184,23 @@ def plot_exponential(t, u_gräns = 0, ö_gräns = 200):
     fig,axs=plt.subplots(2, 1, constrained_layout=True)
 
     #Våra tre respektive modeller för Södermanland
-    sns.lineplot(x=t, y=y_exp_S[u_gräns:ö_gräns], color='blue',
-                    label='Södermanland', ax=axs[0])
-    sns.lineplot(x=t, y=y_exp_S_u[u_gräns:ö_gräns], color='lightblue',
-                    label='Södermanland undre', ax=axs[0])
-    sns.lineplot(x=t, y=y_exp_S_ö[u_gräns:ö_gräns], color='darkblue',
-                    label='Södermanland övre', ax=axs[0])
+    sns.lineplot(x=t, y=y_exp_S[u_gräns:ö_gräns], color='blue', ax=axs[0])
+    #Konfidensintervall
+    axs[0].fill_between(t, y_exp_S_u[u_gräns:ö_gräns], y_exp_S_ö[u_gräns:ö_gräns], color='lavender')
 
     #Namnger våra axlar korrekt
     axs[0].set_xlabel("Tid (år)")
     axs[0].set_ylabel("Bly (mg/kg mossa)")
-    axs[0].legend()
     axs[0].set_title("Södermanland")
 
     #Våra tre respektive modeller för Blekinge
-    sns.lineplot(x=t, y=y_exp_B[u_gräns:ö_gräns], color='red', label='Blekinge', ax=axs[1])
-    sns.lineplot(x=t, y=y_exp_B_u[u_gräns:ö_gräns], color='lightcoral',
-                    label='Blekinge undre', ax=axs[1])
-    sns.lineplot(x=t, y=y_exp_B_ö[u_gräns:ö_gräns], color='darkred',
-                    label='Blekinge övre', ax=axs[1])
+    sns.lineplot(x=t, y=y_exp_B[u_gräns:ö_gräns], color='red', ax=axs[1])
+    #Konfidensintervall
+    axs[1].fill_between(t, y_exp_B_u[u_gräns:ö_gräns], y_exp_B_ö[u_gräns:ö_gräns], color='mistyrose')
 
     #Namnger våra axlar korrekt
     axs[1].set_xlabel("Tid (år)")
     axs[1].set_ylabel("Bly (mg/kg mossa)")
-    axs[1].legend()
     axs[1].set_title("Blekinge")
 
     #Justerar och sparar grafen
