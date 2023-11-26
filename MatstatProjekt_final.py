@@ -50,6 +50,7 @@ plt.title("Blyhalt över tid")
 plt.xlabel("Tid (år)")
 plt.ylabel("Bly (mg/kg mossa)")
 plt.savefig('Grafer/DataFörBådaLänen.png')
+plt.savefig('Grafer/DataFörBådaLänen.jpg')
 plt.savefig('Grafer/DataFörBådaLänen.pgf')
 plt.show()
 
@@ -116,7 +117,7 @@ axs[1].set_title('Exponentiell')
 sns.histplot(x=epsilon_lin,stat='density',kde=True,ax=axs[0])
 sns.histplot(x=epsilon_exp,stat='density',kde=True,ax=axs[1])
 plt.savefig('Grafer/Histogram.png')
-plt.savefig('Grafer/Histogram.pgf')
+#plt.savefig('Grafer/Histogram.pgf')
 plt.show()
 
 #%% Multipel Regression Exponentiell
@@ -128,6 +129,7 @@ print(res_mult_log.summary())
 #Våra parametrar från vår multipel regression beta_0,,,beta_4=beta[0]...beta[4]
 beta0,beta1,beta2,beta3 = res_mult_log.params
 beta=[beta0,beta1,beta2,beta3]
+
 #Våra tidsvärden mellan 1975 och 2015
 t = np.linspace(0, 50, 200)
 
@@ -265,13 +267,93 @@ plot_exponential(t)
 plot_exponential(t,0,41)
 plot_exponential(t,50,121)
 
-#%%En tabell med våra resultat
-pred_data = [Pred_S_2025,Pred_B_2025]
-columns = ['Mitten','Undre','Övre']
-pred_data_2 = [[np.round(Pred_S_2025)],
-        [np.round(Pred_B_2025)]]
-
-columns_2 = ['Undre Gräns','Väntevärde','Övre Gräns']
-
-pred_res_2025 = pd.DataFrame(data=pred_data, index=['Södermanland','Blekinge']
+#%%En tabell med våra resultat för blyhalter 2025
+columns = ['Skattat Värde','Kondidensintervall(95%)']
+pred_data = [[np.round(Pred_S_2025[1],2),[np.round(Pred_S_2025[0],2),np.round(Pred_S_2025[2],2)]],
+        [np.round(Pred_B_2025[1],2),[np.round(Pred_B_2025[0],2),np.round(Pred_B_2025[2],2)]]]
+pred_res_2025 = pd.DataFrame(data=pred_data, index=['Y_S','Y_B']
                   ,columns=columns)
+latex_prediktioner_2025 = pred_res_2025.to_latex()
+
+#%%En tabell med våra resultat för åren som blyhalten understiger 10 mg/kg
+columns = ['Skattat Värde','Kondidensintervall(95%)']
+pred_data_10 = [[np.round(pred_S_10mg[1],2),[np.round(pred_S_10mg[0],2),np.round(pred_S_10mg[2],2)]],
+        [np.round(pred_B_10mg[1],2),[np.round(pred_B_10mg[0],2),np.round(pred_B_10mg[2],2)]]]
+pred_res_10 = pd.DataFrame(data=pred_data_10, index=['Y_S','Y_B']
+                  ,columns=columns)
+latex_prediktioner_10 = pred_res_10.to_latex()
+
+
+##Våra latextabeller 
+#Våra regressionsresultat för respektive modell med Södermanland
+latex_table_lin = reg_lin.summary().as_latex()
+latex_table_exp = reg_exp.summary().as_latex()
+
+##Våra jämförelsevärden
+# Vår linjära modell
+omnibus_prob_lin = reg_lin.summary().tables[2].data[1][1]
+skew_lin = reg_lin.summary().tables[2].data[2][1]
+kurt_lin = reg_lin.summary().tables[2].data[3][1]
+lin_modell_varden = [omnibus_prob_lin, skew_lin, kurt_lin]
+
+# Vår exponentiella modell
+omnibus_prob_exp = reg_exp.summary().tables[2].data[1][1]
+skew_exp = reg_exp.summary().tables[2].data[2][1]
+kurt_exp = reg_exp.summary().tables[2].data[3][1]
+exp_modell_varden = [omnibus_prob_exp, skew_exp, kurt_exp]
+
+#Samlar till en dataframe
+modell_varden = [lin_modell_varden,exp_modell_varden]
+columns = ['P(Omnibus)','Snedhet','Kurtos']
+modell_varden_jamf = pd.DataFrame(data=modell_varden, index=['Linjär','Exponentiell']
+                  ,columns=columns)
+latex_modell_varden = modell_varden_jamf.to_latex()
+
+#Vårt regressionsreesultat för vår multipla regression 
+latex_table_mult_log = res_mult_log.summary().as_latex()
+betas = np.round(res_mult_log.params.values,3)
+stds = np.round(res_mult_log.bse.values,3)
+t_stats = np.round(res_mult_log.tvalues.values,3)
+
+#Samlar allt o en dataframe för Latex
+data = pd.DataFrame([betas, stds, t_stats])
+params = ['Intercept', 'Lan_I', 'Year1975', 'Lan_I:Year1975'] 
+cols = ['Estimat', 'StandardAvvikelse', 'T-värde']
+data_multlog = pd.DataFrame(data = data.T)
+data_multlog.index = params
+data_multlog.columns= cols
+latex_multlog = data_multlog.to_latex()
+
+#Våra konfidensintervall för våra parametrar i vår multipel regression
+cols = ['Undre Intervall', 'Väntevärde', 'Övre Intervall']
+df = pd.DataFrame(index= params, columns = cols)
+df.iloc[:,0] = beta_u
+df.iloc[:,1] = beta
+df.iloc[:,2] = beta_ö
+latex_konf = df.to_latex()
+
+#Sparar allt till latex
+with open('LatexTabeller/regression_table_lin.tex', 'w') as f:
+    f.write(latex_table_lin)
+
+with open('LatexTabeller/regression_table_exp.tex', 'w') as f:
+    f.write(latex_table_exp)
+
+with open('LatexTabeller/regression_table_mult_log.tex', 'w') as f:
+    f.write(latex_table_mult_log)
+
+with open('LatexTabeller/prediktioner_2025.tex', 'w') as f:
+    f.write(latex_prediktioner_2025)
+
+with open('LatexTabeller/prediktioner_10.tex', 'w') as f:
+    f.write(latex_prediktioner_10)
+
+with open('LatexTabeller/modell_jamforelse.tex', 'w') as f:
+    f.write(latex_modell_varden)
+
+with open('LatexTabeller/multlog.tex', 'w') as f:
+    f.write(latex_multlog)
+
+with open('LatexTabeller/multlogkond.tex', 'w') as f:
+    f.write(latex_konf)
+
