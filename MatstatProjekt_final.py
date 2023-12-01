@@ -94,8 +94,8 @@ y = C*np.exp(k*t)
 
 #Exponentiell residual
 epsilon_exp = []
-for n in Y:
-    epsilon_exp.append(np.abs(C*np.exp(k*n) - n))
+for idx, n in enumerate(T):
+    epsilon_exp.append(Y[idx] - C*np.exp(k*n))
 
 #Vi plottar jämförelsen mellan våra mätvärden och estimerade värden från den exponentiella modellen
 #plt.scatter(T, np.exp(Y_log))
