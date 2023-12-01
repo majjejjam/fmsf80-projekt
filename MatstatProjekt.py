@@ -90,6 +90,7 @@ plt.savefig('Grafer/Histogram.png')
 plt.show()
 
 
+
 #%% Multipel Regression Exponentiell 
 Pb['Lan_I'] = [0 if Lan == 'Blekinge län' else 1 for Lan in Pb['Lan'].values]
 Pb['log_Pb']=np.log(Pb['Pb'])

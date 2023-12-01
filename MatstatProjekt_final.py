@@ -160,8 +160,8 @@ plt.show()
 Pb_0=pd.DataFrame({'Year1975' : [50, 50],'Lan_I' : [0, 1]})
 Pred=res_mult_log.get_prediction(Pb_0).summary_frame(alpha=0.05)
 print(str(Pred))
-Pred_S_2025=[np.exp(Pred['mean_ci_lower'][1]),np.exp(Pred['mean'][1]),np.exp(Pred['mean_ci_upper'][1])]
-Pred_B_2025=[np.exp(Pred['mean_ci_lower'][0]),np.exp(Pred['mean'][0]),np.exp(Pred['mean_ci_upper'][0])]
+Pred_S_2025=[np.exp(Pred['obs_ci_lower'][1]),np.exp(Pred['mean'][1]),np.exp(Pred['obs_ci_upper'][1])]
+Pred_B_2025=[np.exp(Pred['obs_ci_lower'][0]),np.exp(Pred['mean'][0]),np.exp(Pred['obs_ci_upper'][0])]
 
 print('PREDIKTION 2025'+'[Undre,Mitten,Övre]')
 print('Blekinge:'+str(Pred_B_2025) )
